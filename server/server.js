@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const authRoutes = require('./routes/auth');
+const memberRoutes = require('./routes/members'); // Import members route
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -12,6 +13,7 @@ app.use('/uploads', express.static('uploads'));
 
 // API Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/members', memberRoutes); // Use members route
 
 // Basic Route
 app.get('/', (req, res) => {

@@ -4,8 +4,7 @@ const db = require('../db');
 
 const saltRounds = 10;
 
-// TODO: Move this to an environment variable
-const JWT_SECRET = 'your_jwt_secret_key';
+const { JWT_SECRET } = require('../config');
 
 const signup = async (req, res) => {
   const { email, first_name, last_name, password } = req.body;
