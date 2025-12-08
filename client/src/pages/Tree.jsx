@@ -200,12 +200,17 @@ const Tree = () => {
 
   const spouse = loggedInUserMember ? findSpouse(loggedInUserMember.id) : null;
   const children = loggedInUserMember ? findChildren(loggedInUserMember.id) : [];
-  const allSiblings = loggedInUserMember ? findSiblings(loggedInUserMember) : [];
   
-  // Find siblings of parents (uncles/aunts)
+  // Find siblings of parents (uncles/aunts) FIRST
   const fatherSiblings = father ? findSiblingsOfMember(father) : [];
   const motherSiblings = mother ? findSiblingsOfMember(mother) : [];
   const allParentSiblings = [...fatherSiblings, ...motherSiblings];
+  const parentSiblingIds = new Set(allParentSiblings.map(s => s.id));
+  
+  // Find user's siblings, but EXCLUDE parent siblings
+  // Parent siblings should only appear in Parents section, not in Your section
+  const allSiblingsRaw = loggedInUserMember ? findSiblings(loggedInUserMember) : [];
+  const allSiblings = allSiblingsRaw.filter(sibling => !parentSiblingIds.has(sibling.id));
   
   // Separate user's siblings into brothers and sisters
   const brothers = allSiblings.filter(sibling => sibling.gender === 'male');
