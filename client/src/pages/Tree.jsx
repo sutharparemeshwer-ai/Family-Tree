@@ -117,27 +117,21 @@ const Tree = () => {
     const userFatherId = mainUserMember.father_id;
     const userMotherId = mainUserMember.mother_id;
 
+    // If user has no parents, they can't have siblings
+    if (!userFatherId && !userMotherId) return [];
+
     // Find all family members that share at least one parent with the user
     const siblings = familyMembers.filter(member => {
-      const isNotSelf = member.id !== mainUserMember.id;
-      const sameOwner = member.tree_owner_id === user?.id;
+      // Must be a different person and belong to the same user
+      if (member.id === mainUserMember.id || member.tree_owner_id !== user?.id) {
+        return false;
+      }
 
-      if (!isNotSelf || !sameOwner) return false;
-
-      // Check if they share father
+      // Check if they share father or mother
       const sharesFather = userFatherId && member.father_id === userFatherId;
-
-      // Check if they share mother
       const sharesMother = userMotherId && member.mother_id === userMotherId;
 
-      // Also check if the sibling has parents that match the user's parents
-      const memberFatherId = member.father_id;
-      const memberMotherId = member.mother_id;
-
-      const userHasMatchingFather = memberFatherId && userFatherId === memberFatherId;
-      const userHasMatchingMother = memberMotherId && userMotherId === memberMotherId;
-
-      return sharesFather || sharesMother || userHasMatchingFather || userHasMatchingMother;
+      return sharesFather || sharesMother;
     });
 
     return siblings;
@@ -294,9 +288,9 @@ const Tree = () => {
                     <h3 className="generation-title">You & Siblings ({siblings.length + 1} members)</h3>
                     <div className="generation-row user-siblings-row">
                       {/* Siblings on the left */}
-                      {siblings.length > 0 && (
-                        <div className="siblings-section">
-                          {siblings.map((sibling, index) => (
+                      <div className="siblings-container">
+                        {siblings.length > 0 ? (
+                          siblings.map((sibling, index) => (
                             <React.Fragment key={sibling.id}>
                               <MemberCard
                                 member={sibling}
@@ -305,10 +299,12 @@ const Tree = () => {
                               />
                               {index < siblings.length - 1 && <div className="connection-line horizontal sibling-connector"></div>}
                             </React.Fragment>
-                          ))}
-                          <div className="connection-line horizontal user-connector"></div>
-                        </div>
-                      )}
+                          ))
+                        ) : (
+                          <div className="empty-siblings">No siblings yet</div>
+                        )}
+                        {siblings.length > 0 && <div className="connection-line horizontal user-connector"></div>}
+                      </div>
 
                       {/* User and Spouse */}
                       <div className="user-spouse-section">
