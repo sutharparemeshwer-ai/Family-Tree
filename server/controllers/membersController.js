@@ -102,10 +102,9 @@ const createMember = async (req, res) => {
       case 'Brother':
       case 'Sister':
         // Find the logged-in user's member record to get their parents
-        // Siblings should share the same parents as the logged-in user, regardless of which card was clicked
         const userMember = await client.query(
-          'SELECT id, father_id, mother_id FROM family_members WHERE tree_owner_id = $1 AND first_name = $2 AND last_name = $3',
-          [tree_owner_id, user_first_name, user_last_name]
+          'SELECT id, father_id, mother_id FROM family_members WHERE tree_owner_id = $1',
+          [tree_owner_id]
         );
 
         if (userMember.rows.length > 0) {
