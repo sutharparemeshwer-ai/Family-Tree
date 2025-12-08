@@ -119,11 +119,6 @@ const Tree = () => {
     const userFatherId = mainUserMember.father_id;
     const userMotherId = mainUserMember.mother_id;
 
-    // If user has no parents, they can't have siblings based on shared parents
-    if (!userFatherId && !userMotherId) {
-      return [];
-    }
-
     // Find all family members that share at least one parent with the user
     const siblings = familyMembers.filter(member => {
       // Must be a different person and belong to the same user
@@ -131,10 +126,18 @@ const Tree = () => {
         return false;
       }
 
+      // If user has no parents, check if this member also has no parents (orphan siblings)
+      if (!userFatherId && !userMotherId) {
+        // For now, we'll only match siblings by shared parents
+        // If user has no parents, we can't determine siblings this way
+        return false;
+      }
+
       // Check if they share father or mother
       const sharesFather = userFatherId && member.father_id === userFatherId;
       const sharesMother = userMotherId && member.mother_id === userMotherId;
 
+      // Must share at least one parent
       return sharesFather || sharesMother;
     });
 
@@ -193,6 +196,24 @@ const Tree = () => {
   const children = loggedInUserMember ? findChildren(loggedInUserMember.id) : [];
   const siblings = loggedInUserMember ? findSiblings(loggedInUserMember) : [];
   const otherMembers = findOtherMembers(loggedInUserMember, siblings);
+
+  // Debug logging
+  React.useEffect(() => {
+    if (loggedInUserMember) {
+      console.log('=== SIBLING DETECTION DEBUG ===');
+      console.log('Logged in user:', loggedInUserMember.first_name, loggedInUserMember.last_name);
+      console.log('User father_id:', loggedInUserMember.father_id);
+      console.log('User mother_id:', loggedInUserMember.mother_id);
+      console.log('All family members:', familyMembers.map(m => ({
+        id: m.id,
+        name: `${m.first_name} ${m.last_name}`,
+        father_id: m.father_id,
+        mother_id: m.mother_id
+      })));
+      console.log('Detected siblings:', siblings.map(s => `${s.first_name} ${s.last_name}`));
+      console.log('Other members:', otherMembers.map(o => `${o.first_name} ${o.last_name}`));
+    }
+  }, [loggedInUserMember, siblings, otherMembers, familyMembers]);
 
   return (
     <div className="tree-page-container">

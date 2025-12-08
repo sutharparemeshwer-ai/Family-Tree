@@ -107,7 +107,7 @@ const createMember = async (req, res) => {
           [tree_owner_id]
         );
 
-        // Find the member that matches the logged-in user
+        // Find the member that matches the logged-in user (by name)
         const userMember = allUserMembers.rows.find(member =>
           member.first_name === user_first_name && member.last_name === user_last_name
         );
@@ -137,7 +137,13 @@ const createMember = async (req, res) => {
               text: siblingUpdateQuery,
               values: siblingValues,
             };
+          } else {
+            // User has no parents, so sibling can't share parents
+            // This is expected if user hasn't added parents yet
+            console.log('User has no parents, sibling will not have parent relationships set');
           }
+        } else {
+          console.log('Could not find user member for sibling creation');
         }
         break;
       default:
