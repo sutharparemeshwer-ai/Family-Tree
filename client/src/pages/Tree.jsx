@@ -297,36 +297,38 @@ const Tree = () => {
                   <div className="generation-section">
                     <h3 className="generation-title">You & Siblings ({siblings.length + 1} members)</h3>
                     <div className="generation-row user-siblings-row">
-                      {/* Render all siblings and user in one horizontal row */}
-                      {siblings.map((sibling, index) => (
-                        <React.Fragment key={sibling.id}>
-                          <MemberCard
-                            member={sibling}
-                            serverUrl={serverUrl}
-                            onAddRelative={handleAddRelative}
-                          />
-                          {index < siblings.length && <div className="connection-line horizontal"></div>}
-                        </React.Fragment>
-                      ))}
+                      {/* Siblings section */}
+                      {siblings.length > 0 && (
+                        <div className="siblings-group">
+                          {siblings.map((sibling, index) => (
+                            <React.Fragment key={sibling.id}>
+                              <MemberCard
+                                member={sibling}
+                                serverUrl={serverUrl}
+                                onAddRelative={handleAddRelative}
+                              />
+                              {index < siblings.length - 1 && <div className="connection-line horizontal"></div>}
+                            </React.Fragment>
+                          ))}
+                          <div className="connection-line horizontal siblings-to-user-connector"></div>
+                        </div>
+                      )}
 
-                      {/* User card */}
-                      <MemberCard
-                        member={loggedInUserMember}
-                        serverUrl={serverUrl}
-                        onAddRelative={handleAddRelative}
-                      />
-
-                      {/* Spouse */}
-                      {spouse && (
-                        <>
-                          <div className="connection-line horizontal"></div>
+                      {/* User and Spouse section - separate container */}
+                      <div className="user-spouse-container">
+                        <MemberCard
+                          member={loggedInUserMember}
+                          serverUrl={serverUrl}
+                          onAddRelative={handleAddRelative}
+                        />
+                        {spouse && (
                           <MemberCard
                             member={spouse}
                             serverUrl={serverUrl}
                             onAddRelative={handleAddRelative}
                           />
-                        </>
-                      )}
+                        )}
+                      </div>
 
                       {/* Show empty state if no siblings */}
                       {siblings.length === 0 && (

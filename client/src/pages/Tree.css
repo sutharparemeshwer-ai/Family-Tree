@@ -156,8 +156,36 @@
   background-color: #4CAF50;
 }
 
+.user-siblings-row .siblings-to-user-connector {
+  width: 30px;
+  margin: 0 0.5rem;
+}
+
 .user-siblings-row .empty-siblings-placeholder {
   flex-shrink: 0;
+}
+
+.siblings-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.user-spouse-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, rgba(255, 182, 193, 0.2), rgba(255, 192, 203, 0.15));
+  border-radius: 12px;
+  border: 2px solid rgba(255, 105, 180, 0.3);
+  box-shadow: 0 4px 12px rgba(255, 105, 180, 0.1);
+  flex-shrink: 0;
+}
+
+.user-spouse-container .member-card {
+  margin: 0;
 }
 
 .empty-siblings-placeholder {
@@ -227,9 +255,21 @@
     min-width: 180px;
   }
 
-  .user-spouse-section {
+  .siblings-group {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+
+  .user-spouse-container {
+    flex-direction: column;
     width: 100%;
-    justify-content: center;
+    max-width: 100%;
+    margin-top: 1rem;
+  }
+
+  .user-spouse-container .member-card {
+    width: 100%;
+    max-width: 100%;
   }
 
   .family-tree {
