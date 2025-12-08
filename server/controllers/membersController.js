@@ -97,6 +97,43 @@ const createMember = async (req, res) => {
           };
         }
         break;
+      case 'Brother':
+      case 'Sister':
+        // Set the new person as a sibling of the existing person
+        // They should share the same parents
+        const existingPerson = await client.query(
+          'SELECT father_id, mother_id FROM family_members WHERE id = $1',
+          [relativeToId]
+        );
+
+        if (existingPerson.rows.length > 0) {
+          const { father_id, mother_id } = existingPerson.rows[0];
+
+          // Create the update query to set the same parents
+          let siblingUpdateQuery = 'UPDATE family_members SET ';
+          const siblingValues = [];
+          const siblingParts = [];
+
+          if (father_id) {
+            siblingParts.push('father_id = $1');
+            siblingValues.push(father_id);
+          }
+          if (mother_id) {
+            siblingParts.push('mother_id = $2');
+            siblingValues.push(mother_id);
+          }
+
+          if (siblingParts.length > 0) {
+            siblingUpdateQuery += siblingParts.join(', ') + ' WHERE id = $' + (siblingValues.length + 1);
+            siblingValues.push(newMemberId);
+
+            updateQuery = {
+              text: siblingUpdateQuery,
+              values: siblingValues,
+            };
+          }
+        }
+        break;
       default:
         // If relationType is unknown, do not link.
         break;

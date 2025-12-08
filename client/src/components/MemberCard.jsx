@@ -45,6 +45,8 @@ const MemberCard = ({ member, serverUrl, onAddRelative }) => {
         <div className="add-menu">
           <button onClick={() => onAddRelative('Father', member.id)}>Add Father</button>
           <button onClick={() => onAddRelative('Mother', member.id)}>Add Mother</button>
+          <button onClick={() => onAddRelative('Brother', member.id)}>Add Brother</button>
+          <button onClick={() => onAddRelative('Sister', member.id)}>Add Sister</button>
           <button onClick={() => onAddRelative('Spouse', member.id)}>Add Spouse</button>
           <button onClick={() => onAddRelative('Child', member.id)}>Add Child</button>
         </div>
