@@ -126,10 +126,10 @@
 }
 
 .user-siblings-row {
-  background-color: rgba(76, 175, 80, 0.1);
+  background-color: transparent;
   padding: 1rem;
   border-radius: 8px;
-  border: 2px solid #4CAF50;
+  border: none;
   display: flex;
   flex-direction: row;
   align-items: center;
