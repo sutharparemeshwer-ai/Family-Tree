@@ -197,8 +197,14 @@ const Tree = () => {
 
   const spouse = loggedInUserMember ? findSpouse(loggedInUserMember.id) : null;
   const children = loggedInUserMember ? findChildren(loggedInUserMember.id) : [];
-  const siblings = loggedInUserMember ? findSiblings(loggedInUserMember) : [];
-  const otherMembers = findOtherMembers(loggedInUserMember, siblings);
+  const allSiblings = loggedInUserMember ? findSiblings(loggedInUserMember) : [];
+  
+  // Separate siblings into brothers and sisters
+  const brothers = allSiblings.filter(sibling => sibling.gender === 'male');
+  const sisters = allSiblings.filter(sibling => sibling.gender === 'female');
+  const siblingsWithoutGender = allSiblings.filter(sibling => !sibling.gender || (sibling.gender !== 'male' && sibling.gender !== 'female'));
+  
+  const otherMembers = findOtherMembers(loggedInUserMember, allSiblings);
 
   return (
     <div className="tree-page-container">
@@ -295,26 +301,26 @@ const Tree = () => {
                 {/* User and Siblings Row */}
                 {loggedInUserMember && (
                   <div className="generation-section">
-                    <h3 className="generation-title">You & Siblings ({siblings.length + 1} members)</h3>
+                    <h3 className="generation-title">You & Siblings ({allSiblings.length + 1} members)</h3>
                     <div className="generation-row user-siblings-row">
-                      {/* Siblings section */}
-                      {siblings.length > 0 && (
-                        <div className="siblings-group">
-                          {siblings.map((sibling, index) => (
-                            <React.Fragment key={sibling.id}>
+                      {/* Brothers section - Left side */}
+                      {brothers.length > 0 && (
+                        <div className="siblings-group brothers-group">
+                          {brothers.map((brother, index) => (
+                            <React.Fragment key={brother.id}>
                               <MemberCard
-                                member={sibling}
+                                member={brother}
                                 serverUrl={serverUrl}
                                 onAddRelative={handleAddRelative}
                               />
-                              {index < siblings.length - 1 && <div className="connection-line horizontal"></div>}
+                              {index < brothers.length - 1 && <div className="connection-line horizontal"></div>}
                             </React.Fragment>
                           ))}
                           <div className="connection-line horizontal siblings-to-user-connector"></div>
                         </div>
                       )}
 
-                      {/* User and Spouse section - separate container */}
+                      {/* User and Spouse section - Middle container */}
                       <div className="user-spouse-container">
                         <MemberCard
                           member={loggedInUserMember}
@@ -330,8 +336,43 @@ const Tree = () => {
                         )}
                       </div>
 
+                      {/* Sisters section - Right side */}
+                      {sisters.length > 0 && (
+                        <div className="siblings-group sisters-group">
+                          <div className="connection-line horizontal siblings-to-user-connector"></div>
+                          {sisters.map((sister, index) => (
+                            <React.Fragment key={sister.id}>
+                              <MemberCard
+                                member={sister}
+                                serverUrl={serverUrl}
+                                onAddRelative={handleAddRelative}
+                              />
+                              {index < sisters.length - 1 && <div className="connection-line horizontal"></div>}
+                            </React.Fragment>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Siblings without gender (fallback) */}
+                      {siblingsWithoutGender.length > 0 && (
+                        <div className="siblings-group">
+                          {brothers.length === 0 && <div className="connection-line horizontal siblings-to-user-connector"></div>}
+                          {siblingsWithoutGender.map((sibling, index) => (
+                            <React.Fragment key={sibling.id}>
+                              <MemberCard
+                                member={sibling}
+                                serverUrl={serverUrl}
+                                onAddRelative={handleAddRelative}
+                              />
+                              {index < siblingsWithoutGender.length - 1 && <div className="connection-line horizontal"></div>}
+                            </React.Fragment>
+                          ))}
+                          {brothers.length > 0 && <div className="connection-line horizontal siblings-to-user-connector"></div>}
+                        </div>
+                      )}
+
                       {/* Show empty state if no siblings */}
-                      {siblings.length === 0 && (
+                      {allSiblings.length === 0 && (
                         <div className="empty-siblings-placeholder">Add siblings to see them here</div>
                       )}
                     </div>

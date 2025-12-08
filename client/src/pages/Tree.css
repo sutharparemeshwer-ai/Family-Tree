@@ -172,6 +172,14 @@
   flex-shrink: 0;
 }
 
+.brothers-group {
+  order: -1; /* Brothers appear first (left side) */
+}
+
+.sisters-group {
+  order: 1; /* Sisters appear last (right side) */
+}
+
 .user-spouse-container {
   display: flex;
   align-items: center;
@@ -182,6 +190,7 @@
   border: 2px solid rgba(255, 105, 180, 0.3);
   box-shadow: 0 4px 12px rgba(255, 105, 180, 0.1);
   flex-shrink: 0;
+  order: 0; /* User+Spouse in the middle */
 }
 
 .user-spouse-container .member-card {

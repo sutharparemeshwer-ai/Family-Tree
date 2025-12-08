@@ -22,9 +22,17 @@ const createMember = async (req, res) => {
     await client.query('BEGIN');
 
     // Step 1: Insert the new family member
+    // Determine gender based on relationType for siblings
+    let gender = null;
+    if (relationType === 'Brother') {
+      gender = 'male';
+    } else if (relationType === 'Sister') {
+      gender = 'female';
+    }
+    
     const insertQuery = `
-      INSERT INTO family_members(tree_owner_id, first_name, last_name, nickname, profile_img_url, description)
-      VALUES($1, $2, $3, $4, $5, $6)
+      INSERT INTO family_members(tree_owner_id, first_name, last_name, nickname, profile_img_url, description, gender)
+      VALUES($1, $2, $3, $4, $5, $6, $7)
       RETURNING id;
     `;
     const newMemberResult = await client.query(insertQuery, [
@@ -34,6 +42,7 @@ const createMember = async (req, res) => {
       nickname,
       profile_img_url,
       description,
+      gender,
     ]);
     const newMemberId = newMemberResult.rows[0].id;
 
