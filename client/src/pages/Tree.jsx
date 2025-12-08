@@ -71,13 +71,11 @@ const Tree = () => {
   };
 
   const handleMemberAdded = async (message) => {
-    console.log('Member added, refreshing data...');
     setModalOpen(false); // Close modal
     setSuccessMessage(message || 'Member added successfully!'); // Set success message
 
     // Re-fetch members to update the list
     await fetchFamilyMembers();
-    console.log('Data refreshed after adding member');
   };
 
   // Helper function to find the logged-in user's member
@@ -121,11 +119,8 @@ const Tree = () => {
     const userFatherId = mainUserMember.father_id;
     const userMotherId = mainUserMember.mother_id;
 
-    console.log('Finding siblings for user:', mainUserMember.first_name, 'with parents:', userFatherId, userMotherId);
-
-    // If user has no parents, they can't have siblings
+    // If user has no parents, they can't have siblings based on shared parents
     if (!userFatherId && !userMotherId) {
-      console.log('User has no parents, returning empty siblings array');
       return [];
     }
 
@@ -140,12 +135,9 @@ const Tree = () => {
       const sharesFather = userFatherId && member.father_id === userFatherId;
       const sharesMother = userMotherId && member.mother_id === userMotherId;
 
-      console.log('Checking member:', member.first_name, 'shares father:', sharesFather, 'shares mother:', sharesMother);
-
       return sharesFather || sharesMother;
     });
 
-    console.log('Found siblings:', siblings.length, siblings.map(s => s.first_name));
     return siblings;
   };
 
@@ -201,13 +193,6 @@ const Tree = () => {
   const children = loggedInUserMember ? findChildren(loggedInUserMember.id) : [];
   const siblings = loggedInUserMember ? findSiblings(loggedInUserMember) : [];
   const otherMembers = findOtherMembers(loggedInUserMember, siblings);
-
-  // Debug siblings display
-  console.log('=== SIBLINGS DISPLAY DEBUG ===');
-  console.log('Logged in user member:', loggedInUserMember);
-  console.log('Found siblings:', siblings);
-  console.log('Siblings length:', siblings.length);
-  console.log('Siblings container should render:', siblings.length > 0);
 
   return (
     <div className="tree-page-container">
@@ -306,43 +291,41 @@ const Tree = () => {
                   <div className="generation-section">
                     <h3 className="generation-title">You & Siblings ({siblings.length + 1} members)</h3>
                     <div className="generation-row user-siblings-row">
-                      {/* Siblings on the left */}
-                      <div className="siblings-container">
-                        {siblings.length > 0 ? (
-                          siblings.map((sibling, index) => (
-                            <React.Fragment key={sibling.id}>
-                              <MemberCard
-                                member={sibling}
-                                serverUrl={serverUrl}
-                                onAddRelative={handleAddRelative}
-                              />
-                              {index < siblings.length - 1 && <div className="connection-line horizontal sibling-connector"></div>}
-                            </React.Fragment>
-                          ))
-                        ) : (
-                          <div className="empty-siblings">No siblings yet</div>
-                        )}
-                        {siblings.length > 0 && <div className="connection-line horizontal user-connector"></div>}
-                      </div>
+                      {/* Render all siblings and user in one horizontal row */}
+                      {siblings.map((sibling, index) => (
+                        <React.Fragment key={sibling.id}>
+                          <MemberCard
+                            member={sibling}
+                            serverUrl={serverUrl}
+                            onAddRelative={handleAddRelative}
+                          />
+                          {index < siblings.length && <div className="connection-line horizontal"></div>}
+                        </React.Fragment>
+                      ))}
 
-                      {/* User and Spouse */}
-                      <div className="user-spouse-section">
-                        <MemberCard
-                          member={loggedInUserMember}
-                          serverUrl={serverUrl}
-                          onAddRelative={handleAddRelative}
-                        />
-                        {spouse && (
-                          <>
-                            <div className="connection-line horizontal"></div>
-                            <MemberCard
-                              member={spouse}
-                              serverUrl={serverUrl}
-                              onAddRelative={handleAddRelative}
-                            />
-                          </>
-                        )}
-                      </div>
+                      {/* User card */}
+                      <MemberCard
+                        member={loggedInUserMember}
+                        serverUrl={serverUrl}
+                        onAddRelative={handleAddRelative}
+                      />
+
+                      {/* Spouse */}
+                      {spouse && (
+                        <>
+                          <div className="connection-line horizontal"></div>
+                          <MemberCard
+                            member={spouse}
+                            serverUrl={serverUrl}
+                            onAddRelative={handleAddRelative}
+                          />
+                        </>
+                      )}
+
+                      {/* Show empty state if no siblings */}
+                      {siblings.length === 0 && (
+                        <div className="empty-siblings-placeholder">Add siblings to see them here</div>
+                      )}
                     </div>
                     {children.length > 0 && <div className="connection-line vertical"></div>}
                   </div>

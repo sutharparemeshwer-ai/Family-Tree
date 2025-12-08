@@ -1,10 +1,11 @@
-const express = require('express');
+                                                                                                                                                                                                                                                      const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const membersController = require('../controllers/membersController');
 const authMiddleware = require('../middleware/authMiddleware');
 
-const router = express.Router();
+const router = express.Router();                                                                                                                                   
+
 
 // Using the same multer storage configuration as auth routes
 const storage = multer.diskStorage({
