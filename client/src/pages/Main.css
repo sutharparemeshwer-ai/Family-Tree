@@ -45,6 +45,11 @@
   max-width: 600px;
 }
 
+.hero-cta-container {
+  display: flex;
+  gap: 1.5rem;
+}
+
 .hero-cta-btn {
   padding: 1rem 2.5rem;
   font-size: 1.1rem;
@@ -56,9 +61,23 @@
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .hero-cta-btn:hover {
   transform: translateY(-3px);
   box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+}
+
+.memories-btn {
+  background-color: rgba(144, 238, 144, 0.3); /* Transparent light green */
+  color: #333; /* Keep dark text for contrast */
+  box-shadow: 0 4px 15px rgba(144, 238, 144, 0.3); /* Adjust shadow color */
+}
+
+.memories-btn:hover {
+  background-color: rgba(144, 238, 144, 0.5); /* Slightly less transparent on hover */
+  box-shadow: 0 6px 20px rgba(144, 238, 144, 0.4); /* Adjust shadow color */
 }

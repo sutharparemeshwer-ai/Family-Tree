@@ -1,0 +1,15 @@
+.memories-page-container {
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+
+.memories-content {
+  padding-top: 100px; /* Space for the navbar */
+  display: flex;
+  height: calc(100vh - 100px);
+}
+
+.memory-gallery-main {
+  flex: 1;
+  overflow-y: auto;
+}

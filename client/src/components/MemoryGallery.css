@@ -1,0 +1,57 @@
+.memory-gallery-container {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+.gallery-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.gallery-header h2 {
+  margin: 0;
+  font-size: 1.8rem;
+  color: #333;
+}
+
+.add-memory-btn {
+  padding: 0.7rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #ffffff;
+  background-color: #4CAF50;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.add-memory-btn:hover {
+  background-color: #45a049;
+}
+
+.memory-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.memory-card-placeholder {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  grid-column: 1 / -1; /* Span full width */
+  padding: 4rem;
+  border: 2px dashed #ccc;
+  border-radius: 12px;
+  background-color: #fafafa;
+  color: #777;
+  font-size: 1.1rem;
+}
+
+.error-message {
+    color: #d93025;
+}
