@@ -2,19 +2,19 @@ import React from 'react';
 import MemberCard from './MemberCard';
 import './CoupleContainer.css';
 
-const CoupleContainer = ({ member1, member2, serverUrl, onAddRelative }) => {
+const CoupleContainer = ({ member1, member2, serverUrl, onAddRelative, className }) => {
   return (
-    <div className="couple-container">
-      {member1 && (
+    <div className={`couple-container ${className || ''}`}>
+      {member2 && (
         <MemberCard
-          member={member1}
+          member={member2}
           serverUrl={serverUrl}
           onAddRelative={onAddRelative}
         />
       )}
-      {member2 && (
+      {member1 && (
         <MemberCard
-          member={member2}
+          member={member1}
           serverUrl={serverUrl}
           onAddRelative={onAddRelative}
         />

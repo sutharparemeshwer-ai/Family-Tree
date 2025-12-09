@@ -253,6 +253,7 @@ const Tree = () => {
                       {/* Paternal Grandparents */}
                       {(paternalGrandfather || paternalGrandmother) && (
                         <CoupleContainer
+                          className="paternal-grandparents"
                           member1={paternalGrandfather}
                           member2={paternalGrandmother}
                           serverUrl={serverUrl}
@@ -262,6 +263,7 @@ const Tree = () => {
                       {/* Maternal Grandparents */}
                       {(maternalGrandfather || maternalGrandmother) && (
                         <CoupleContainer
+                          className="maternal-grandparents"
                           member1={maternalGrandfather}
                           member2={maternalGrandmother}
                           serverUrl={serverUrl}
@@ -286,37 +288,53 @@ const Tree = () => {
                         return null;
                       })()}
 
-                      {/* Explicitly render Father and Mother together */}
-                      {(father || mother) && (
-                        <CoupleContainer
-                          key="parent-couple"
-                          member1={father}
-                          member2={mother}
-                          serverUrl={serverUrl}
-                          onAddRelative={handleAddRelative}
-                        />
-                      )}
-
-                      {/* Render unique siblings */}
-                      {uniqueParentGenerationMembers
-                        .filter(member => !renderedParentIds.has(member.id))
-                        .map(sibling => {
-                          // Check again for sibling-sibling couples
-                          if (renderedParentIds.has(sibling.id)) return null; 
-                          
-                          const spouse = findSpouse(sibling.id);
-                          renderedParentIds.add(sibling.id);
-                          if (spouse) renderedParentIds.add(spouse.id);
-                          
-                          return (
+                      {/* Render maternal siblings (mother's side) */}
+                      {motherSiblings.map((sibling, index) => {
+                        const spouse = findSpouse(sibling.id);
+                        return (
+                          <React.Fragment key={sibling.id}>
                             <CoupleContainer
-                              key={sibling.id}
                               member1={sibling}
                               member2={spouse}
                               serverUrl={serverUrl}
                               onAddRelative={handleAddRelative}
                             />
-                          );
+                            {index < motherSiblings.length - 1 && <div className="connection-line horizontal"></div>}
+                          </React.Fragment>
+                        );
+                      })}
+
+                      {motherSiblings.length > 0 && <div className="connection-line horizontal"></div>}
+
+                      {/* Explicitly render Father and Mother together */}
+                      {(father || mother) && (
+                        <div className="parents-center-card">
+                          <CoupleContainer
+                            key="parent-couple"
+                            member1={father}
+                            member2={mother}
+                            serverUrl={serverUrl}
+                            onAddRelative={handleAddRelative}
+                          />
+                        </div>
+                      )}
+
+                      {fatherSiblings.length > 0 && <div className="connection-line horizontal"></div>}
+
+                      {/* Render paternal siblings (father's side) */}
+                      {fatherSiblings.map((sibling, index) => {
+                        const spouse = findSpouse(sibling.id);
+                        return (
+                          <React.Fragment key={sibling.id}>
+                            <CoupleContainer
+                              member1={sibling}
+                              member2={spouse}
+                              serverUrl={serverUrl}
+                              onAddRelative={handleAddRelative}
+                            />
+                            {index < fatherSiblings.length - 1 && <div className="connection-line horizontal"></div>}
+                          </React.Fragment>
+                        );
                       })}
                     </div>
                     {(allSiblings.length > 0 || loggedInUserMember) && <div className="connection-line vertical"></div>}
@@ -346,12 +364,14 @@ const Tree = () => {
                       )}
 
                       {/* User and Spouse section - Middle container */}
-                      <CoupleContainer
-                        member1={loggedInUserMember}
-                        member2={spouse}
-                        serverUrl={serverUrl}
-                        onAddRelative={handleAddRelative}
-                      />
+                      <div className="center-card">
+                        <CoupleContainer
+                          member1={loggedInUserMember}
+                          member2={spouse}
+                          serverUrl={serverUrl}
+                          onAddRelative={handleAddRelative}
+                        />
+                      </div>
 
                       {/* Sisters section - Right side */}
                       {sisters.length > 0 && (
