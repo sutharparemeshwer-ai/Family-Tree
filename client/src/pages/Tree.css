@@ -120,7 +120,6 @@
 }
 
 .parents-row {
-  background-color: rgba(33, 150, 243, 0.05);
   padding: 1rem;
   border-radius: 8px;
   display: flex;
@@ -191,29 +190,14 @@
 }
 
 .brothers-group {
-  order: 1; /* Brothers appear last (right side) */
+  order: -1; /* Brothers appear first (left side) */
 }
 
 .sisters-group {
-  order: -1; /* Sisters appear first (left side) */
+  order: 1; /* Sisters appear last (right side) */
 }
 
-.user-spouse-container {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem;
-  background: linear-gradient(135deg, rgba(255, 182, 193, 0.2), rgba(255, 192, 203, 0.15));
-  border-radius: 12px;
-  border: 2px solid rgba(255, 105, 180, 0.3);
-  box-shadow: 0 4px 12px rgba(255, 105, 180, 0.1);
-  flex-shrink: 0;
-  order: 0; /* User+Spouse in the middle */
-}
 
-.user-spouse-container .member-card {
-  margin: 0;
-}
 
 .empty-siblings-placeholder {
   color: #666;

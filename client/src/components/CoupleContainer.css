@@ -1,0 +1,15 @@
+.couple-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, rgba(100, 181, 246, 0.15), rgba(144, 202, 249, 0.1));
+  border-radius: 12px;
+  border: 1px solid rgba(33, 150, 243, 0.2);
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.08);
+  flex-shrink: 0;
+}
+
+.couple-container .member-card {
+  margin: 0;
+}

@@ -3,6 +3,7 @@ import Navbar from '../components/Navbar';
 import Modal from '../components/Modal';
 import AddMemberForm from '../components/AddMemberForm';
 import MemberCard from '../components/MemberCard'; // Import MemberCard
+import CoupleContainer from '../components/CoupleContainer'; // Import CoupleContainer
 import api from '../utils/api'; // Import the api utility
 import './Tree.css';
 
@@ -57,10 +58,12 @@ const Tree = () => {
 
 
   const handleAddRelative = (type, targetMemberId) => {
+    // When adding a sibling to a parent, we need to find the grandparent
+    // However, the backend handles this logic, so we just pass the correct type
     setRelationType(type);
-    setRelativeToId(targetMemberId); // Set the ID of the member whose '+' was clicked
+    setRelativeToId(targetMemberId);
     setModalOpen(true);
-    setSuccessMessage(''); // Clear success message when opening modal
+    setSuccessMessage('');
   };
 
   const handleAddSelf = () => {
@@ -119,30 +122,16 @@ const Tree = () => {
   const findSiblingsOfMember = (memberToFindSiblingsFor) => {
     if (!memberToFindSiblingsFor) return [];
 
-    const memberFatherId = memberToFindSiblingsFor.father_id;
-    const memberMotherId = memberToFindSiblingsFor.mother_id;
+    const { father_id, mother_id } = memberToFindSiblingsFor;
 
-    // If member has no parents, they can't have siblings based on shared parents
-    if (!memberFatherId && !memberMotherId) {
-      return [];
-    }
-
-    // Find all family members that share at least one parent with this member
-    const siblings = familyMembers.filter(member => {
-      // Must be a different person and belong to the same user
-      if (member.id === memberToFindSiblingsFor.id || member.tree_owner_id !== user?.id) {
-        return false;
-      }
-
-      // Check if they share father or mother
-      const sharesFather = memberFatherId && member.father_id === memberFatherId;
-      const sharesMother = memberMotherId && member.mother_id === memberMotherId;
-
-      // Must share at least one parent
-      return sharesFather || sharesMother;
-    });
-
-    return siblings;
+    // Siblings are defined as having the exact same father and mother IDs.
+    // This correctly handles full-siblings, and half-siblings (if one parent is null).
+    return familyMembers.filter(member =>
+      member.id !== memberToFindSiblingsFor.id &&
+      member.tree_owner_id === user?.id &&
+      member.father_id === father_id &&
+      member.mother_id === mother_id
+    );
   };
 
   // Helper function to find siblings of the logged-in user
@@ -207,63 +196,8 @@ const Tree = () => {
   const allParentSiblings = [...fatherSiblings, ...motherSiblings];
   const parentSiblingIds = new Set(allParentSiblings.map(s => s.id));
   
-  // Debug: Log parent siblings with detailed info
-  console.log('=== PARENT SIBLINGS DEBUG ===');
-  if (father) {
-    console.log('Father:', father.first_name, 'ID:', father.id, 'Parents:', father.father_id, father.mother_id);
-    console.log('Father siblings found:', fatherSiblings.length);
-    fatherSiblings.forEach(s => {
-      console.log(`  - ${s.first_name} (ID: ${s.id}, Parents: ${s.father_id}, ${s.mother_id})`);
-      console.log(`    Shares father: ${father.father_id && s.father_id === father.father_id}`);
-      console.log(`    Shares mother: ${father.mother_id && s.mother_id === father.mother_id}`);
-    });
-  }
-  if (mother) {
-    console.log('Mother:', mother.first_name, 'ID:', mother.id, 'Parents:', mother.father_id, mother.mother_id);
-    console.log('Mother siblings found:', motherSiblings.length);
-    motherSiblings.forEach(s => {
-      console.log(`  - ${s.first_name} (ID: ${s.id}, Parents: ${s.father_id}, ${s.mother_id})`);
-      console.log(`    Shares father: ${mother.father_id && s.father_id === mother.father_id}`);
-      console.log(`    Shares mother: ${mother.mother_id && s.mother_id === mother.mother_id}`);
-    });
-  }
-  console.log('Total parent siblings:', allParentSiblings.length);
-  console.log('Parent sibling IDs to exclude:', Array.from(parentSiblingIds));
-  
-  // Find user's siblings, but EXCLUDE parent siblings
-  // Parent siblings should only appear in Parents section, not in Your section
-  const allSiblingsRaw = loggedInUserMember ? findSiblings(loggedInUserMember) : [];
-  
-  // Debug: Log user siblings before exclusion
-  if (allSiblingsRaw.length > 0) {
-    console.log('=== USER SIBLINGS BEFORE EXCLUSION ===');
-    console.log('User:', loggedInUserMember?.first_name, 'ID:', loggedInUserMember?.id, 'Parents:', loggedInUserMember?.father_id, loggedInUserMember?.mother_id);
-    console.log('Raw user siblings:', allSiblingsRaw.map(s => `${s.first_name} (ID: ${s.id}, Parents: ${s.father_id}, ${s.mother_id})`));
-  }
-  
-  const allSiblings = allSiblingsRaw.filter(sibling => {
-    const isExcluded = parentSiblingIds.has(sibling.id);
-    if (isExcluded) {
-      console.log(`EXCLUDING ${sibling.first_name} (ID: ${sibling.id}) from user siblings - it's a parent sibling`);
-    }
-    return !isExcluded;
-  });
-  
-  // Debug: Log final user siblings with detailed parent comparison
-  if (allSiblings.length > 0 || allSiblingsRaw.length > 0) {
-    console.log('=== FINAL USER SIBLINGS ===');
-    console.log('User parent IDs:', loggedInUserMember?.father_id, loggedInUserMember?.mother_id);
-    console.log('Father parent IDs:', father?.father_id, father?.mother_id);
-    console.log('Mother parent IDs:', mother?.father_id, mother?.mother_id);
-    console.log('All raw siblings with parent IDs:', allSiblingsRaw.map(s => ({
-      name: s.first_name,
-      id: s.id,
-      father_id: s.father_id,
-      mother_id: s.mother_id,
-      isParentSibling: parentSiblingIds.has(s.id)
-    })));
-    console.log('Final user siblings:', allSiblings.map(s => `${s.first_name} (ID: ${s.id}, Parents: ${s.father_id}, ${s.mother_id})`));
-  }
+  // Find user's siblings. With the new strict `findSiblingsOfMember`, this will be correct.
+  const allSiblings = loggedInUserMember ? findSiblings(loggedInUserMember) : [];
   
   // Separate user's siblings into brothers and sisters
   const brothers = allSiblings.filter(sibling => sibling.gender === 'male');
@@ -277,6 +211,19 @@ const Tree = () => {
   const motherSisters = motherSiblings.filter(sibling => sibling.gender === 'female');
   
   const otherMembers = findOtherMembers(loggedInUserMember, [...allSiblings, ...allParentSiblings]);
+
+  // Helper logic for rendering the parents generation
+  const parentGenerationMembers = [];
+  if (father) parentGenerationMembers.push(father);
+  if (mother) parentGenerationMembers.push(mother);
+  fatherBrothers.forEach(m => parentGenerationMembers.push(m));
+  fatherSisters.forEach(m => parentGenerationMembers.push(m));
+  motherBrothers.forEach(m => parentGenerationMembers.push(m));
+  motherSisters.forEach(m => parentGenerationMembers.push(m));
+  
+  const uniqueParentGenerationMembers = Array.from(new Map(parentGenerationMembers.map(m => [m.id, m])).values());
+  const renderedParentIds = new Set();
+
 
   return (
     <div className="tree-page-container">
@@ -305,41 +252,21 @@ const Tree = () => {
                     <div className="generation-row grandparents-row">
                       {/* Paternal Grandparents */}
                       {(paternalGrandfather || paternalGrandmother) && (
-                        <div className="grandparent-pair">
-                          {paternalGrandfather && (
-                            <MemberCard
-                              member={paternalGrandfather}
-                              serverUrl={serverUrl}
-                              onAddRelative={handleAddRelative}
-                            />
-                          )}
-                          {paternalGrandmother && (
-                            <MemberCard
-                              member={paternalGrandmother}
-                              serverUrl={serverUrl}
-                              onAddRelative={handleAddRelative}
-                            />
-                          )}
-                        </div>
+                        <CoupleContainer
+                          member1={paternalGrandfather}
+                          member2={paternalGrandmother}
+                          serverUrl={serverUrl}
+                          onAddRelative={handleAddRelative}
+                        />
                       )}
                       {/* Maternal Grandparents */}
                       {(maternalGrandfather || maternalGrandmother) && (
-                        <div className="grandparent-pair">
-                          {maternalGrandfather && (
-                            <MemberCard
-                              member={maternalGrandfather}
-                              serverUrl={serverUrl}
-                              onAddRelative={handleAddRelative}
-                            />
-                          )}
-                          {maternalGrandmother && (
-                            <MemberCard
-                              member={maternalGrandmother}
-                              serverUrl={serverUrl}
-                              onAddRelative={handleAddRelative}
-                            />
-                          )}
-                        </div>
+                        <CoupleContainer
+                          member1={maternalGrandfather}
+                          member2={maternalGrandmother}
+                          serverUrl={serverUrl}
+                          onAddRelative={handleAddRelative}
+                        />
                       )}
                     </div>
                     <div className="connection-line vertical"></div>
@@ -351,97 +278,46 @@ const Tree = () => {
                   <div className="generation-section">
                     <h3 className="generation-title">Parents</h3>
                     <div className="generation-row parents-row">
-                      {/* Father and his siblings */}
-                      {father && (
-                        <div className="parent-with-siblings">
-                          {/* Father's brothers */}
-                          {fatherBrothers.length > 0 && (
-                            <div className="siblings-group parent-siblings-group">
-                              {fatherBrothers.map((brother, index) => (
-                                <React.Fragment key={brother.id}>
-                                  <MemberCard
-                                    member={brother}
-                                    serverUrl={serverUrl}
-                                    onAddRelative={handleAddRelative}
-                                  />
-                                  {index < fatherBrothers.length - 1 && <div className="connection-line horizontal"></div>}
-                                </React.Fragment>
-                              ))}
-                              <div className="connection-line horizontal"></div>
-                            </div>
-                          )}
-                          
-                          {/* Father */}
-                          <MemberCard
-                            member={father}
-                            serverUrl={serverUrl}
-                            onAddRelative={handleAddRelative}
-                          />
-                          
-                          {/* Father's sisters */}
-                          {fatherSisters.length > 0 && (
-                            <div className="siblings-group parent-siblings-group">
-                              <div className="connection-line horizontal"></div>
-                              {fatherSisters.map((sister, index) => (
-                                <React.Fragment key={sister.id}>
-                                  <MemberCard
-                                    member={sister}
-                                    serverUrl={serverUrl}
-                                    onAddRelative={handleAddRelative}
-                                  />
-                                  {index < fatherSisters.length - 1 && <div className="connection-line horizontal"></div>}
-                                </React.Fragment>
-                              ))}
-                            </div>
-                          )}
-                        </div>
+                      {(() => {
+                        // Initialize rendered set; clear is needed for hot-reloads in dev
+                        renderedParentIds.clear();
+                        if (father) renderedParentIds.add(father.id);
+                        if (mother) renderedParentIds.add(mother.id);
+                        return null;
+                      })()}
+
+                      {/* Explicitly render Father and Mother together */}
+                      {(father || mother) && (
+                        <CoupleContainer
+                          key="parent-couple"
+                          member1={father}
+                          member2={mother}
+                          serverUrl={serverUrl}
+                          onAddRelative={handleAddRelative}
+                        />
                       )}
-                      
-                      {/* Mother and her siblings */}
-                      {mother && (
-                        <div className="parent-with-siblings">
-                          {/* Mother's brothers */}
-                          {motherBrothers.length > 0 && (
-                            <div className="siblings-group parent-siblings-group">
-                              {motherBrothers.map((brother, index) => (
-                                <React.Fragment key={brother.id}>
-                                  <MemberCard
-                                    member={brother}
-                                    serverUrl={serverUrl}
-                                    onAddRelative={handleAddRelative}
-                                  />
-                                  {index < motherBrothers.length - 1 && <div className="connection-line horizontal"></div>}
-                                </React.Fragment>
-                              ))}
-                              <div className="connection-line horizontal"></div>
-                            </div>
-                          )}
+
+                      {/* Render unique siblings */}
+                      {uniqueParentGenerationMembers
+                        .filter(member => !renderedParentIds.has(member.id))
+                        .map(sibling => {
+                          // Check again for sibling-sibling couples
+                          if (renderedParentIds.has(sibling.id)) return null; 
                           
-                          {/* Mother */}
-                          <MemberCard
-                            member={mother}
-                            serverUrl={serverUrl}
-                            onAddRelative={handleAddRelative}
-                          />
+                          const spouse = findSpouse(sibling.id);
+                          renderedParentIds.add(sibling.id);
+                          if (spouse) renderedParentIds.add(spouse.id);
                           
-                          {/* Mother's sisters */}
-                          {motherSisters.length > 0 && (
-                            <div className="siblings-group parent-siblings-group">
-                              <div className="connection-line horizontal"></div>
-                              {motherSisters.map((sister, index) => (
-                                <React.Fragment key={sister.id}>
-                                  <MemberCard
-                                    member={sister}
-                                    serverUrl={serverUrl}
-                                    onAddRelative={handleAddRelative}
-                                  />
-                                  {index < motherSisters.length - 1 && <div className="connection-line horizontal"></div>}
-                                </React.Fragment>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      )}
+                          return (
+                            <CoupleContainer
+                              key={sibling.id}
+                              member1={sibling}
+                              member2={spouse}
+                              serverUrl={serverUrl}
+                              onAddRelative={handleAddRelative}
+                            />
+                          );
+                      })}
                     </div>
                     {(allSiblings.length > 0 || loggedInUserMember) && <div className="connection-line vertical"></div>}
                   </div>
@@ -470,20 +346,12 @@ const Tree = () => {
                       )}
 
                       {/* User and Spouse section - Middle container */}
-                      <div className="user-spouse-container">
-                        <MemberCard
-                          member={loggedInUserMember}
-                          serverUrl={serverUrl}
-                          onAddRelative={handleAddRelative}
-                        />
-                        {spouse && (
-                          <MemberCard
-                            member={spouse}
-                            serverUrl={serverUrl}
-                            onAddRelative={handleAddRelative}
-                          />
-                        )}
-                      </div>
+                      <CoupleContainer
+                        member1={loggedInUserMember}
+                        member2={spouse}
+                        serverUrl={serverUrl}
+                        onAddRelative={handleAddRelative}
+                      />
 
                       {/* Sisters section - Right side */}
                       {sisters.length > 0 && (
