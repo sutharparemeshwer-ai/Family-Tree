@@ -31,7 +31,7 @@ const MembersSidebar = ({ onMemberSelect, selectedMemberId, onMembersLoad }) => 
   const serverUrl = 'http://localhost:5000';
 
   return (
-    <aside className="members-sidebar">
+    <aside className="members-sidebar ">
       <div className="sidebar-header">
         <h3>Family Members</h3>
         <input
