@@ -40,17 +40,22 @@ const Main = () => {
     <div className="main-page-container">
       <Navbar />
       <section className="hero-section">
-        <h1 className="hero-title">Welcome to the Family Tree</h1>
-        <p className="hero-subtitle">Draw your family in a creative way</p>
-        <div className="hero-cta-container">
-          <button className="hero-cta-btn" onClick={handleNavigateToTree}>
-            <TreeIcon />
-            Make Your Tree Now
-          </button>
-          <button className="hero-cta-btn memories-btn" onClick={handleNavigateToMemories}>
-            <MemoriesIcon />
-            Make Memories
-          </button>
+        <div className="particles">
+          {[...Array(20)].map((_, i) => <span key={i} />)}
+        </div>
+        <div className="hero-content-wrapper">
+          <h1 className="hero-title">Welcome to the Family Tree</h1>
+          <p className="hero-subtitle">Draw your family in a creative way</p>
+          <div className="hero-cta-container">
+            <button className="hero-cta-btn" onClick={handleNavigateToTree}>
+              <TreeIcon />
+              Make Your Tree Now
+            </button>
+            <button className="hero-cta-btn memories-btn" onClick={handleNavigateToMemories}>
+              <MemoriesIcon />
+              Make Memories
+            </button>
+          </div>
         </div>
       </section>
     </div>
