@@ -78,7 +78,8 @@
   border: 1px solid #f0f0f0;
 }
 
-.logout-btn {
+.dropdown-item {
+  display: block;
   width: 100%;
   padding: 0.8rem 1rem;
   border: none;
@@ -89,9 +90,11 @@
   font-family: 'Poppins', sans-serif;
   color: #333;
   transition: background-color 0.3s ease;
+  text-decoration: none;
+  box-sizing: border-box;
 }
 
-.logout-btn:hover {
+.dropdown-item:hover {
   background-color: #f5f5f5;
 }
 

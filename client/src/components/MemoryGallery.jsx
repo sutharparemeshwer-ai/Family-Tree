@@ -68,4 +68,3 @@ const MemoryGallery = ({ memberId, memberName, onAddMemory }) => {
 };
 
 export default MemoryGallery;
-

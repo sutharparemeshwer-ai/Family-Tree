@@ -3,6 +3,7 @@ const cors = require('cors');
 const authRoutes = require('./routes/auth');
 const memberRoutes = require('./routes/members'); // Import members route
 const memoryRoutes = require('./routes/memories');
+const userRoutes = require('./routes/users');
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -16,6 +17,7 @@ app.use('/uploads', express.static('uploads'));
 app.use('/api/auth', authRoutes);
 app.use('/api/members', memberRoutes); // Use members route
 app.use('/api/memories', memoryRoutes);
+app.use('/api/users', userRoutes);
 
 // Basic Route
 app.get('/', (req, res) => {

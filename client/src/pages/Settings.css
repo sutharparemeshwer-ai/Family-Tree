@@ -1,0 +1,199 @@
+.settings-page-container {
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+
+.settings-content {
+  padding-top: 120px;
+  display: flex;
+  justify-content: center;
+  padding-bottom: 3rem;
+}
+
+.settings-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.settings-header h2 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #4CAF50; /* Green color for the title */
+}
+
+.settings-header p {
+  color: #666;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.settings-form-container {
+  width: 100%;
+  max-width: 900px; /* Increased width for split layout */
+}
+
+.settings-form-container > p {
+  color: #666;
+  margin-bottom: 2rem;
+  font-size: 1rem;
+}
+
+.settings-form {
+  background-color: #fff;
+  padding: 2.5rem;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+}
+
+.settings-form-body {
+  display: flex;
+  gap: 3rem;
+}
+
+/* --- Left Column: Avatar --- */
+.settings-avatar-section {
+  flex-basis: 200px;
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.avatar-upload-label {
+  display: block;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  border: 3px dashed #ccc;
+  cursor: pointer;
+  margin: 0 auto 1rem auto;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.avatar-upload-label:hover {
+  border-color: #4CAF50;
+  background-color: #f9f9f9;
+}
+
+.avatar-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-upload-label .upload-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.4);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.avatar-upload-label:hover .upload-overlay {
+  opacity: 1;
+}
+
+#profile-image-upload {
+  display: none;
+}
+
+.field-hint {
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 0.5rem;
+}
+
+/* --- Right Column: Details --- */
+.settings-details-section {
+  flex-grow: 1;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.input-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.input-group label {
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+  font-size: 1rem;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: #4CAF50;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+}
+
+hr {
+  border: none;
+  border-top: 1px solid #eee;
+  margin: 2rem 0;
+}
+
+.form-actions {
+  text-align: right;
+  margin-top: 2rem;
+}
+
+.form-message {
+  padding: 0.75rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+  text-align: center;
+}
+.form-message.error {
+  background-color: rgba(217, 48, 37, 0.1);
+  color: #d93025;
+}
+.form-message.success {
+  background-color: rgba(76, 175, 80, 0.15);
+  color: #2e7d32;
+}
+
+.btn-primary {
+  padding: 0.8rem 2rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #ffffff;
+  background-color: #4CAF50;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+.btn-primary:disabled {
+  background-color: #a5d6a7;
+  cursor: not-allowed;
+}

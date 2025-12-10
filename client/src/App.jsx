@@ -5,6 +5,7 @@ import Login from './pages/Login';
 import Main from './pages/Main';
 import Tree from './pages/Tree';
 import Memories from './pages/Memories';
+import Settings from './pages/Settings';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/tree" element={<Tree />} />
         <Route path="/memories" element={<Memories />} />
         <Route path="/memories/:memberId" element={<Memories />} />
+        <Route path="/settings" element={<Settings />} />
         <Route path="/" element={<Navigate to="/signup" />} />
       </Routes>
     </Router>

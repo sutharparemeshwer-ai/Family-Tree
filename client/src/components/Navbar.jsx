@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import logo from '../assets/logo.png';
 import './Navbar.css';
 
@@ -41,7 +41,8 @@ const Navbar = () => {
           </div>
           {dropdownVisible && (
             <div className="user-dropdown">
-              <button onClick={handleLogout} className="logout-btn">Logout</button>
+              <Link to="/settings" className="dropdown-item">Profile Settings</Link>
+              <button onClick={handleLogout} className="dropdown-item">Logout</button>
             </div>
           )}
         </div>
