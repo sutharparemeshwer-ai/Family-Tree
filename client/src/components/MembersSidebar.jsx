@@ -33,7 +33,7 @@ const MembersSidebar = ({ onMemberSelect, selectedMemberId, onMembersLoad }) => 
   return (
     <aside className="members-sidebar">
       <div className="sidebar-header">
-        <h3>Family Members</h3>
+        <h2>Family Members</h2>
         <input
           type="text"
           placeholder="Find a member..."

@@ -4,12 +4,12 @@
 }
 
 .memories-content {
-  padding-top: 100px; /* Space for the navbar */
   display: flex;
-  height: calc(100vh - 100px);
+  height: 100vh; /* Set container to full viewport height */
 }
 
 .memory-gallery-main {
   flex: 1;
   overflow-y: auto;
+  padding-top: 120px; /* Add padding to push gallery content below navbar */
 }
