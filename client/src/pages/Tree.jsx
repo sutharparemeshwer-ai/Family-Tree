@@ -124,8 +124,12 @@ const Tree = () => {
 
     const { father_id, mother_id } = memberToFindSiblingsFor;
 
+    // A person must have at least one parent to have siblings.
+    if (!father_id && !mother_id) {
+      return [];
+    }
+
     // Siblings are defined as having the exact same father and mother IDs.
-    // This correctly handles full-siblings, and half-siblings (if one parent is null).
     return familyMembers.filter(member =>
       member.id !== memberToFindSiblingsFor.id &&
       member.tree_owner_id === user?.id &&
@@ -139,43 +143,8 @@ const Tree = () => {
     return findSiblingsOfMember(mainUserMember);
   };
 
-  // Helper function to find other family members not directly related to main user
-  const findOtherMembers = (mainUserMember, siblings = []) => {
-    if (!mainUserMember) return [];
-
-    const relatedIds = new Set([mainUserMember.id]);
-
-    // Add parents
-    if (mainUserMember.father_id) relatedIds.add(mainUserMember.father_id);
-    if (mainUserMember.mother_id) relatedIds.add(mainUserMember.mother_id);
-
-    // Add spouse
-    if (mainUserMember.spouse_id) relatedIds.add(mainUserMember.spouse_id);
-
-    // Add children
-    const children = findChildren(mainUserMember.id);
-    children.forEach(child => relatedIds.add(child.id));
-
-    // Add siblings
-    siblings.forEach(sibling => relatedIds.add(sibling.id));
-
-    // Add grandparents (parents of parents)
-    const father = findParent(mainUserMember.id, 'father');
-    const mother = findParent(mainUserMember.id, 'mother');
-
-    if (father) {
-      if (father.father_id) relatedIds.add(father.father_id);
-      if (father.mother_id) relatedIds.add(father.mother_id);
-    }
-    if (mother) {
-      if (mother.father_id) relatedIds.add(mother.father_id);
-      if (mother.mother_id) relatedIds.add(mother.mother_id);
-    }
-
-    return familyMembers.filter(member =>
-      member.tree_owner_id === user?.id && !relatedIds.has(member.id)
-    );
-  };
+  // This function is no longer needed, the logic is now inline.
+  // const findOtherMembers = ...
 
   const loggedInUserMember = findLoggedInUserMember();
   const father = loggedInUserMember ? findParent(loggedInUserMember.id, 'father') : null;
@@ -190,13 +159,11 @@ const Tree = () => {
   const spouse = loggedInUserMember ? findSpouse(loggedInUserMember.id) : null;
   const children = loggedInUserMember ? findChildren(loggedInUserMember.id) : [];
   
-  // Find siblings of parents (uncles/aunts) FIRST
+  // Find siblings of parents (uncles/aunts)
   const fatherSiblings = father ? findSiblingsOfMember(father) : [];
   const motherSiblings = mother ? findSiblingsOfMember(mother) : [];
-  const allParentSiblings = [...fatherSiblings, ...motherSiblings];
-  const parentSiblingIds = new Set(allParentSiblings.map(s => s.id));
   
-  // Find user's siblings. With the new strict `findSiblingsOfMember`, this will be correct.
+  // Find user's siblings
   const allSiblings = loggedInUserMember ? findSiblings(loggedInUserMember) : [];
   
   // Separate user's siblings into brothers and sisters
@@ -204,24 +171,47 @@ const Tree = () => {
   const sisters = allSiblings.filter(sibling => sibling.gender === 'female');
   const siblingsWithoutGender = allSiblings.filter(sibling => !sibling.gender || (sibling.gender !== 'male' && sibling.gender !== 'female'));
   
-  // Separate parent siblings into brothers and sisters
-  const fatherBrothers = fatherSiblings.filter(sibling => sibling.gender === 'male');
-  const fatherSisters = fatherSiblings.filter(sibling => sibling.gender === 'female');
-  const motherBrothers = motherSiblings.filter(sibling => sibling.gender === 'male');
-  const motherSisters = motherSiblings.filter(sibling => sibling.gender === 'female');
-  
-  const otherMembers = findOtherMembers(loggedInUserMember, [...allSiblings, ...allParentSiblings]);
+  // --- START: NEW LOGIC FOR STRICT CATEGORIZATION ---
 
-  // Helper logic for rendering the parents generation
-  const parentGenerationMembers = [];
-  if (father) parentGenerationMembers.push(father);
-  if (mother) parentGenerationMembers.push(mother);
-  fatherBrothers.forEach(m => parentGenerationMembers.push(m));
-  fatherSisters.forEach(m => parentGenerationMembers.push(m));
-  motherBrothers.forEach(m => parentGenerationMembers.push(m));
-  motherSisters.forEach(m => parentGenerationMembers.push(m));
+  // 1. Create a set of all IDs that are explicitly placed in a primary category.
+  const categorizedIds = new Set();
+
+  // Add user, spouse, parents, and grandparents
+  if (loggedInUserMember) categorizedIds.add(loggedInUserMember.id);
+  if (spouse) categorizedIds.add(spouse.id);
+  if (father) categorizedIds.add(father.id);
+  if (mother) categorizedIds.add(mother.id);
+  if (paternalGrandfather) categorizedIds.add(paternalGrandfather.id);
+  if (paternalGrandmother) categorizedIds.add(paternalGrandmother.id);
+  if (maternalGrandfather) categorizedIds.add(maternalGrandfather.id);
+  if (maternalGrandmother) categorizedIds.add(maternalGrandmother.id);
+
+  // Add all children
+  children.forEach(child => categorizedIds.add(child.id));
+
+  // Add all siblings (user's and parents')
+  allSiblings.forEach(sibling => categorizedIds.add(sibling.id));
+  fatherSiblings.forEach(sibling => categorizedIds.add(sibling.id));
+  motherSiblings.forEach(sibling => categorizedIds.add(sibling.id));
+
+  // Add spouses of siblings and uncles/aunts, as they are rendered in CoupleContainers
+  const allPrimaryMembers = [
+    ...allSiblings,
+    ...fatherSiblings,
+    ...motherSiblings,
+  ];
+  allPrimaryMembers.forEach(member => {
+    const memberSpouse = findSpouse(member.id);
+    if (memberSpouse) {
+      categorizedIds.add(memberSpouse.id);
+    }
+  });
+
+  // 2. "Other Members" are now ONLY those not in the categorized set.
+  const otherMembers = familyMembers.filter(member => !categorizedIds.has(member.id));
+
+  // --- END: NEW LOGIC ---
   
-  const uniqueParentGenerationMembers = Array.from(new Map(parentGenerationMembers.map(m => [m.id, m])).values());
   const renderedParentIds = new Set();
 
 
@@ -281,16 +271,19 @@ const Tree = () => {
                     <h3 className="generation-title">Parents</h3>
                     <div className="generation-row parents-row">
                       {(() => {
-                        // Initialize rendered set; clear is needed for hot-reloads in dev
+                        // This set will prevent duplicate renders within this specific row
                         renderedParentIds.clear();
-                        if (father) renderedParentIds.add(father.id);
-                        if (mother) renderedParentIds.add(mother.id);
                         return null;
                       })()}
 
                       {/* Render maternal siblings (mother's side) */}
                       {motherSiblings.map((sibling, index) => {
+                        if (renderedParentIds.has(sibling.id)) return null;
+                        
                         const spouse = findSpouse(sibling.id);
+                        renderedParentIds.add(sibling.id);
+                        if (spouse) renderedParentIds.add(spouse.id);
+
                         return (
                           <React.Fragment key={sibling.id}>
                             <CoupleContainer
@@ -307,23 +300,32 @@ const Tree = () => {
                       {motherSiblings.length > 0 && <div className="connection-line horizontal"></div>}
 
                       {/* Explicitly render Father and Mother together */}
-                      {(father || mother) && (
-                        <div className="parents-center-card">
-                          <CoupleContainer
-                            key="parent-couple"
-                            member1={father}
-                            member2={mother}
-                            serverUrl={serverUrl}
-                            onAddRelative={handleAddRelative}
-                          />
-                        </div>
-                      )}
+                      {(father || mother) && (() => {
+                        if (father) renderedParentIds.add(father.id);
+                        if (mother) renderedParentIds.add(mother.id);
+                        return (
+                            <div className="parents-center-card">
+                            <CoupleContainer
+                                key="parent-couple"
+                                member1={father}
+                                member2={mother}
+                                serverUrl={serverUrl}
+                                onAddRelative={handleAddRelative}
+                            />
+                            </div>
+                        );
+                      })()}
 
                       {fatherSiblings.length > 0 && <div className="connection-line horizontal"></div>}
 
                       {/* Render paternal siblings (father's side) */}
                       {fatherSiblings.map((sibling, index) => {
+                        if (renderedParentIds.has(sibling.id)) return null;
+
                         const spouse = findSpouse(sibling.id);
+                        renderedParentIds.add(sibling.id);
+                        if (spouse) renderedParentIds.add(spouse.id);
+                        
                         return (
                           <React.Fragment key={sibling.id}>
                             <CoupleContainer

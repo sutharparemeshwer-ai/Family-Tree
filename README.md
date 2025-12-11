@@ -1,40 +1,47 @@
 # 🌳 Family Tree - Full Stack Genealogy Application
 
-A beautiful, modern family tree management application built with React and Node.js. Create, visualize, and manage your family genealogy with an intuitive drag-and-drop interface.
+A beautiful, modern family tree management application built with React and Node.js. Create, visualize, and manage your family genealogy and preserve precious memories.
 
 ![Family Tree Demo](./demo-screenshot.png)
 
 ## ✨ Features
 
 ### 🎨 **Modern UI/UX**
-- **Glassmorphism Design**: Beautiful semi-transparent interfaces with blur effects
-- **Responsive Layout**: Works seamlessly on desktop, tablet, and mobile devices
-- **Smooth Animations**: Hover effects, loading states, and transitions
-- **Color-Coded Generations**: Purple (Grandparents), Blue (Parents), Green (You), Yellow (Children)
+- **Glassmorphism Design**: Beautiful semi-transparent interfaces with blur effects.
+- **Dynamic Animations**: Subtle particle effects, hover animations, and smooth transitions.
+- **Responsive Layout**: Works seamlessly on desktop, tablet, and mobile devices.
+- **Color-Coded Generations**: Purple (Grandparents), Blue (Parents), Green (You), Yellow (Children).
 
 ### 👨‍👩‍👧‍👦 **Family Tree Visualization**
-- **Hierarchical Layout**: Grandparents → Parents → You & Siblings → Children
-- **Smart Positioning**: Siblings appear alongside you with connection lines
-- **Relationship Mapping**: Father, Mother, Brother, Sister, Spouse, and Child relationships
-- **Interactive Cards**: Click + buttons to add family members
+- **Hierarchical Layout**: Grandparents → Parents → You & Siblings → Children.
+- **Smart Positioning**: Siblings and spouses are automatically placed with connection lines.
+- **Interactive Cards**: Click `+` buttons on any member to add relatives contextually.
+- **Relationship Mapping**: Supports Father, Mother, Brother, Sister, Spouse, and Child relationships.
+
+### 📸 **Memory Gallery**
+- **Create & Manage Memories**: Add titles, descriptions, and dates to preserve family stories.
+- **Photo & Video Uploads**: Attach multiple photos and videos to each memory.
+- **Interactive Gallery**: View memories associated with each family member in a responsive grid layout.
+- **Video Previews**: Videos automatically play on hover for a dynamic experience.
+
+### ⚙️ **User Profile Management**
+- **Editable Profiles**: Users can update their name, email, and profile picture from a dedicated settings page.
+- **Secure Password Change**: Functionality to change passwords with current password verification.
 
 ### 🖼️ **Advanced Image Handling**
-- **Anonymous Avatars**: Auto-generated SVG avatars with user initials and colors
-- **Profile Pictures**: Upload and display family member photos
-- **Loading States**: Smooth loading animations and error handling
-- **Optimized Performance**: Efficient image loading and caching
+- **Anonymous Avatars**: Auto-generated SVG avatars with user initials and colors.
+- **Profile Pictures**: Upload and display family member photos.
+- **Loading States**: Smooth loading animations and error handling for images.
 
 ### 🔐 **Secure Authentication**
-- **JWT Authentication**: Secure token-based authentication
-- **Password Hashing**: bcrypt for secure password storage
-- **Protected Routes**: Middleware protection for sensitive operations
-- **Session Management**: Automatic login/logout handling
+- **JWT Authentication**: Secure token-based authentication.
+- **Password Hashing**: `bcrypt` for secure password storage.
+- **Protected Routes**: Middleware protection for all sensitive operations.
 
 ### 📊 **Database Design**
-- **PostgreSQL**: Robust relational database
-- **Relationship Mapping**: Foreign keys for complex family relationships
-- **User Isolation**: Each user has their own family tree
-- **Data Integrity**: Proper constraints and referential integrity
+- **PostgreSQL**: Robust relational database.
+- **Relationship Mapping**: Foreign keys for complex family relationships.
+- **Data Integrity**: Proper constraints and referential integrity across tables.
 
 ## 🚀 Quick Start
 
@@ -56,8 +63,10 @@ A beautiful, modern family tree management application built with React and Node
    # Create PostgreSQL database
    createdb family_tree_db
 
-   # Run the schema
+   # Run the schemas in order
    psql -d family_tree_db -f database/tables.sql
+   psql -d family_tree_db -f database/add_gender_column.sql
+   psql -d family_tree_db -f database/memories_tables.sql
    ```
 
 3. **Install backend dependencies**
@@ -74,11 +83,11 @@ A beautiful, modern family tree management application built with React and Node
 
 5. **Configure environment variables**
 
-   Create `.env` file in the server directory:
+   Create a `.env` file in the `server` directory:
    ```env
    PORT=5000
-   JWT_SECRET=your_secure_jwt_secret_here
-   DATABASE_URL=postgresql://username:password@localhost:5432/family_tree_db
+   JWT_SECRET=your_super_strong_and_long_jwt_secret_here
+   DATABASE_URL=postgresql://YOUR_DB_USER:YOUR_DB_PASSWORD@localhost:5432/family_tree_db
    ```
 
 6. **Start the application**
@@ -105,148 +114,98 @@ A beautiful, modern family tree management application built with React and Node
 ```
 family-tree/
 ├── client/                 # React frontend
-│   ├── public/            # Static assets
+│   ├── public/
 │   ├── src/
 │   │   ├── components/    # Reusable UI components
 │   │   ├── pages/         # Page components
-│   │   ├── utils/         # API utilities
-│   │   └── App.jsx        # Main app component
+│   │   └── ...
 │   └── package.json
 ├── server/                 # Express backend
 │   ├── controllers/       # Route controllers
-│   ├── routes/           # API routes
-│   ├── middleware/       # Authentication middleware
-│   ├── db/               # Database connection
-│   ├── uploads/          # Uploaded images
-│   └── server.js         # Main server file
-├── database/              # Database schema
+│   ├── routes/            # API routes
+│   ├── middleware/        # Auth middleware
+│   └── ...
+├── database/               # Database schemas
 └── README.md
 ```
 
 ## 🛠️ Tech Stack
 
 ### Frontend
-- **React 19.2.1** - UI framework
-- **React Router 7.10.0** - Navigation
-- **Axios 1.13.2** - HTTP client
-- **CSS3** - Styling with modern features
+- **React** - UI framework
+- **React Router** - Navigation
+- **Axios** - HTTP client
+- **CSS3** - Modern styling with animations
 
 ### Backend
-- **Express.js 5.2.1** - Web framework
-- **PostgreSQL 8.16.3** - Database
-- **JWT 9.0.2** - Authentication
-- **bcrypt 6.0.0** - Password hashing
-- **Multer 2.0.2** - File uploads
-
-### DevOps
-- **Git** - Version control
-- **npm** - Package management
+- **Express.js** - Web framework
+- **PostgreSQL** - Database
+- **node-postgres (pg)** - PostgreSQL client for Node.js
+- **JWT** - Authentication
+- **bcrypt** - Password hashing
+- **Multer** - File uploads
 
 ## 📡 API Endpoints
 
 ### Authentication
-- `POST /api/auth/signup` - User registration
-- `POST /api/auth/login` - User login
+- `POST /api/auth/signup` - User registration.
+- `POST /api/auth/login` - User login.
 
 ### Family Members
-- `GET /api/members` - Get all family members
-- `POST /api/members` - Add new family member
+- `GET /api/members` - Get all family members for the logged-in user.
+- `POST /api/members` - Add a new family member.
 
-### Request Examples
+### Memories
+- `GET /api/memories?memberId={id}` - Get all memories for a specific family member.
+- `POST /api/memories` - Create a new memory with photos/videos.
+- `DELETE /api/memories/{id}` - Delete a specific memory.
 
-**Signup:**
-```json
-POST /api/auth/signup
-Content-Type: multipart/form-data
-
-{
-  "email": "user@example.com",
-  "first_name": "John",
-  "last_name": "Doe",
-  "password": "securepassword",
-  "profile_image": "[file]"
-}
-```
-
-**Add Family Member:**
-```json
-POST /api/members
-Authorization: Bearer <jwt_token>
-
-{
-  "firstName": "Jane",
-  "lastName": "Doe",
-  "relationType": "Sister",
-  "relativeToId": 1
-}
-```
-
-**Supported Relation Types:**
-- `Father`, `Mother` - Parent relationships
-- `Brother`, `Sister` - Sibling relationships (share same parents)
-- `Spouse` - Marriage relationship
-- `Child` - Parent-child relationship
+### User Profile
+- `PATCH /api/users/profile` - Update the logged-in user's profile information.
 
 ## 🎨 UI Components
 
 ### MemberCard
-Interactive family member cards with:
-- Profile image/avatar display
-- Add family member button (+)
-- Hover effects and animations
-- Responsive design
+Interactive cards for each family member with an integrated menu to add new relatives.
 
 ### AddMemberForm
-Modal form for adding family members:
-- Profile image upload
-- Relationship selection
-- Form validation
-- Success/error feedback
+A clean, modal-based form for adding new members with profile image upload.
 
 ### Tree Visualization
-Hierarchical family tree layout:
-- Generation-based organization
-- Connection lines between relatives
-- Color-coded relationship groups
-- Mobile-responsive design
+A hierarchical layout that visually represents the family structure with connection lines.
+
+### MemoryCard & Gallery
+Displays memories with media in a responsive grid. Features hover-to-play video and an elegant glassmorphism design.
+
+### Settings Form
+A professional, two-column layout for updating user profile details and changing passwords.
 
 ## 🔒 Security Features
 
-- **Password Hashing**: bcrypt with salt rounds
-- **JWT Tokens**: Secure authentication tokens
-- **Input Validation**: Server-side validation
-- **SQL Injection Prevention**: Parameterized queries
-- **CORS Protection**: Configured for frontend domain
-- **File Upload Security**: Type and size restrictions
+- **Password Hashing**: `bcrypt` with salt rounds.
+- **JWT Tokens**: Secure, expiring authentication tokens.
+- **Input Validation**: Server-side validation of incoming data.
+- **SQL Injection Prevention**: Use of parameterized queries.
+- **CORS Protection**: Configurable to restrict access to the frontend domain.
+- **File Upload Security**: Type and size restrictions on uploaded files.
 
 ## 📱 Responsive Design
 
-- **Desktop**: Full hierarchical layout with connection lines
-- **Tablet**: Optimized spacing and touch targets
-- **Mobile**: Stacked layout with collapsible sections
+- **Desktop**: Full hierarchical layout with multi-column views.
+- **Tablet**: Optimized spacing and touch targets.
+- **Mobile**: Stacked layouts with scrollable sections for a seamless experience.
 
 ## 🤝 Contributing
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+1. Fork the repository.
+2. Create a feature branch (`git checkout -b feature/amazing-feature`).
+3. Commit your changes (`git commit -m 'Add amazing feature'`).
+4. Push to the branch (`git push origin feature/amazing-feature`).
+5. Open a Pull Request.
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- **React Community** for the amazing framework
-- **PostgreSQL** for the robust database
-- **Express.js** for the flexible backend framework
-- **Material Design** for UI inspiration
-
-## 📞 Support
-
-If you have any questions or issues, please open an issue on GitHub or contact the maintainers.
+This project is licensed under the MIT License.
 
 ---
 
