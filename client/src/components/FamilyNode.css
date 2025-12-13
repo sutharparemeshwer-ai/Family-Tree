@@ -1,0 +1,109 @@
+.family-node {
+  /* Inherit some styles from member-card but adjusted for node context */
+  position: relative;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  text-align: center;
+  width: 200px;
+  border: 1px solid #eee;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.family-node:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+}
+
+/* Specific styling for the 'target' handle (top) */
+.react-flow__handle-top {
+  background: #555;
+  width: 10px;
+  height: 10px;
+}
+
+/* Specific styling for the 'source' handle (bottom) */
+.react-flow__handle-bottom {
+  background: #555;
+  width: 10px;
+  height: 10px;
+}
+
+/* Reuse internal card styles */
+.node-image-container {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 10px;
+  position: relative;
+}
+
+.node-profile-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #4CAF50;
+}
+
+.node-name {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
+  color: #333;
+  word-wrap: break-word;
+}
+
+.node-nickname {
+  font-size: 0.8rem;
+  color: #777;
+  margin: 2px 0 0;
+}
+
+/* Add Button styling */
+.node-add-btn {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  z-index: 20;
+}
+
+.node-add-menu {
+  position: absolute;
+  top: 25px;
+  right: -120px; /* Pop out to the side */
+  width: 140px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.node-add-menu button {
+  padding: 8px 12px;
+  border: none;
+  background: white;
+  text-align: left;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.2s;
+}
+
+.node-add-menu button:hover {
+  background: #f0f0f0;
+}
