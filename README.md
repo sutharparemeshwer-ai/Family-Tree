@@ -10,19 +10,29 @@ A beautiful, modern family tree management application built with React and Node
 - **Glassmorphism Design**: Beautiful semi-transparent interfaces with blur effects.
 - **Dynamic Animations**: Subtle particle effects, hover animations, and smooth transitions.
 - **Responsive Layout**: Works seamlessly on desktop, tablet, and mobile devices.
-- **Color-Coded Generations**: Purple (Grandparents), Blue (Parents), Green (You), Yellow (Children).
+- **Advanced Search**: Quickly find family members with a dynamic "Fly-To" animation on the tree.
 
 ### 👨‍👩‍👧‍👦 **Family Tree Visualization**
-- **Hierarchical Layout**: Grandparents → Parents → You & Siblings → Children.
-- **Smart Positioning**: Siblings and spouses are automatically placed with connection lines.
+- **Infinite Canvas**: Utilizes **React Flow** for scalable, interactive tree visualization.
+- **Smart Auto-Layout**: Automatically positions members with balanced spacing for large trees.
 - **Interactive Cards**: Click `+` buttons on any member to add relatives contextually.
 - **Relationship Mapping**: Supports Father, Mother, Brother, Sister, Spouse, and Child relationships.
+- **Print-Ready Export**: Download the tree as a high-resolution image (PNG) or a multi-page **PDF Family History Book**.
 
 ### 📸 **Memory Gallery**
 - **Create & Manage Memories**: Add titles, descriptions, and dates to preserve family stories.
 - **Photo & Video Uploads**: Attach multiple photos and videos to each memory.
 - **Interactive Gallery**: View memories associated with each family member in a responsive grid layout.
 - **Video Previews**: Videos automatically play on hover for a dynamic experience.
+
+### 📅 **Family Event Reminders**
+- **Upcoming Events Widget**: Displays upcoming birthdays and anniversaries on the main dashboard.
+- **Smart Date Calculation**: Automatically determines the next occurrence of yearly events.
+
+### 🔗 **Shareable Trees**
+- **Generate Secure Links**: Create unique shareable links for your family tree.
+- **Permission Control**: Share with "View Only" or "Allow Editing" permissions.
+- **Token-Based Access**: Securely access shared trees without requiring a user login.
 
 ### ⚙️ **User Profile Management**
 - **Editable Profiles**: Users can update their name, email, and profile picture from a dedicated settings page.
@@ -67,6 +77,12 @@ A beautiful, modern family tree management application built with React and Node
    psql -d family_tree_db -f database/tables.sql
    psql -d family_tree_db -f database/add_gender_column.sql
    psql -d family_tree_db -f database/memories_tables.sql
+   psql -d family_tree_db -f database/share_tokens.sql # NEW: For sharing links
+   psql -d family_tree_db -f database/add_dates_to_members.sql # NEW: For event reminders
+
+   # Grant permissions if your DB user is 'parm' (replace 'parm' with your actual username if different)
+   # psql -d family_tree_db -c "GRANT ALL PRIVILEGES ON TABLE share_tokens TO parm;"
+   # psql -d family_tree_db -c "GRANT USAGE, SELECT ON SEQUENCE share_tokens_id_seq TO parm;"
    ```
 
 3. **Install backend dependencies**
@@ -116,16 +132,22 @@ family-tree/
 ├── client/                 # React frontend
 │   ├── public/
 │   ├── src/
-│   │   ├── components/    # Reusable UI components
-│   │   ├── pages/         # Page components
+│   │   ├── components/    # Reusable UI components (e.g., AddMemberForm, EventsWidget, ActionBar, ShareModal)
+│   │   ├── pages/         # Page components (e.g., Tree, Main, SharedTree)
+│   │   ├── utils/         # Utility functions (e.g., api, treeLayout, bookGenerator)
 │   │   └── ...
 │   └── package.json
 ├── server/                 # Express backend
-│   ├── controllers/       # Route controllers
-│   ├── routes/            # API routes
+│   ├── controllers/       # Route controllers (e.g., membersController, shareController)
+│   ├── routes/            # API routes (e.g., members, share)
 │   ├── middleware/        # Auth middleware
 │   └── ...
-├── database/               # Database schemas
+├── database/               # PostgreSQL schema & migrations
+│   ├── tables.sql
+│   ├── add_gender_column.sql
+│   ├── memories_tables.sql
+│   ├── share_tokens.sql      # NEW: Share links table
+│   └── add_dates_to_members.sql # NEW: Birth/Anniversary dates
 └── README.md
 ```
 
@@ -134,7 +156,12 @@ family-tree/
 ### Frontend
 - **React** - UI framework
 - **React Router** - Navigation
+- **React Flow** - Advanced tree visualization
 - **Axios** - HTTP client
+- **JSPDF** - PDF generation
+- **HTML-to-Image** - HTML element to image conversion
+- **Download.js** - Client-side file downloads
+- **Dagre** - Graph layout algorithm
 - **CSS3** - Modern styling with animations
 
 ### Backend
@@ -145,7 +172,7 @@ family-tree/
 - **bcrypt** - Password hashing
 - **Multer** - File uploads
 
-## 📡 API Endpoints
+## 📡 API Endpoints (Updated)
 
 ### Authentication
 - `POST /api/auth/signup` - User registration.
@@ -154,6 +181,7 @@ family-tree/
 ### Family Members
 - `GET /api/members` - Get all family members for the logged-in user.
 - `POST /api/members` - Add a new family member.
+- `GET /api/members/events` - NEW: Get upcoming birthdays and anniversaries.
 
 ### Memories
 - `GET /api/memories?memberId={id}` - Get all memories for a specific family member.
@@ -163,22 +191,33 @@ family-tree/
 ### User Profile
 - `PATCH /api/users/profile` - Update the logged-in user's profile information.
 
-## 🎨 UI Components
+### Sharing
+- `POST /api/share/generate` - NEW: Generate a unique shareable token for the user's tree. (Auth required)
+- `GET /api/share/:token` - NEW: Get tree data by share token (no auth required for viewing).
+- `POST /api/share/:token/members` - NEW: Add a member to a shared tree if 'edit' permission is granted (no auth required, uses token for validation).
+
+## 🎨 UI Components (Updated)
 
 ### MemberCard
 Interactive cards for each family member with an integrated menu to add new relatives.
 
 ### AddMemberForm
-A clean, modal-based form for adding new members with profile image upload.
+A clean, modal-based form for adding new members with profile image upload, **Date of Birth, and Anniversary dates**.
 
 ### Tree Visualization
-A hierarchical layout that visually represents the family structure with connection lines.
+A hierarchical layout that visually represents the family structure with connection lines, now powered by **React Flow** with search, fly-to, and advanced export options.
 
 ### MemoryCard & Gallery
 Displays memories with media in a responsive grid. Features hover-to-play video and an elegant glassmorphism design.
 
 ### Settings Form
 A professional, two-column layout for updating user profile details and changing passwords.
+
+### ActionBar
+NEW: Floating bar in the Tree view with "Download Tree", "Share Tree", and "Family Book" options.
+
+### EventsWidget
+NEW: Displays upcoming birthdays and anniversaries on the Main dashboard.
 
 ## 🔒 Security Features
 
@@ -188,6 +227,7 @@ A professional, two-column layout for updating user profile details and changing
 - **SQL Injection Prevention**: Use of parameterized queries.
 - **CORS Protection**: Configurable to restrict access to the frontend domain.
 - **File Upload Security**: Type and size restrictions on uploaded files.
+- **Share Link Security**: Token-based access with configurable permissions.
 
 ## 📱 Responsive Design
 
