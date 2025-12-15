@@ -44,8 +44,7 @@
 }
 
 .add-member-form input[type="text"],
-.add-member-form textarea,
-.add-member-form input[type="date"] {
+.add-member-form textarea {
   width: 100%;
   padding: 0.75rem;
   border: 1px solid #ccc;
@@ -78,26 +77,6 @@
   color: #666;
   font-weight: 500;
   margin-left: 2px;
-}
-
-.add-member-form input[type="date"] {
-  color: #444;
-  cursor: pointer;
-}
-
-/* Fix for placeholder color in date inputs on some browsers */
-.add-member-form input[type="date"]::-webkit-datetime-edit {
-  color: #444;
-}
-
-.add-member-form input[type="date"]::-webkit-calendar-picker-indicator {
-  cursor: pointer;
-  opacity: 0.6;
-  transition: opacity 0.2s;
-}
-
-.add-member-form input[type="date"]::-webkit-calendar-picker-indicator:hover {
-  opacity: 1;
 }
 
 .add-member-form textarea {

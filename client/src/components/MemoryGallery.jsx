@@ -1,18 +1,23 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import api from '../utils/api';
 import MemoryCard from './MemoryCard';
-import MemoryViewerModal from './MemoryViewerModal'; // NEW
+import MemoryViewerModal from './MemoryViewerModal';
+import ConfirmationModal from './ConfirmationModal'; // Import new component
 import './MemoryGallery.css';
 
 const MemoryGallery = ({ memberId, memberName, onAddMemory }) => {
   const [memories, setMemories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const serverUrl = 'http://localhost:5000'; // Define serverUrl here
+  const serverUrl = 'http://localhost:5000';
 
   // State for Memory Viewer Modal
   const [isViewerModalOpen, setIsViewerModalOpen] = useState(false);
   const [selectedMemoryForViewer, setSelectedMemoryForViewer] = useState(null);
+
+  // State for Delete Confirmation Modal
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [memoryToDelete, setMemoryToDelete] = useState(null);
 
   const fetchMemories = useCallback(async () => {
     if (!memberId) {
@@ -37,12 +42,25 @@ const MemoryGallery = ({ memberId, memberName, onAddMemory }) => {
     fetchMemories();
   }, [fetchMemories]);
 
-  const handleDeleteMemory = async (memoryId) => {
+  // Open modal instead of deleting immediately
+  const handleDeleteRequest = (memoryId) => {
+    setMemoryToDelete(memoryId);
+    setIsDeleteModalOpen(true);
+  };
+
+  // Actual deletion logic
+  const confirmDelete = async () => {
+    if (!memoryToDelete) return;
+
     try {
-      await api.delete(`/memories/${memoryId}`);
-      fetchMemories(); // Re-fetch memories to update the list
+      await api.delete(`/memories/${memoryToDelete}`);
+      setMemories(prev => prev.filter(m => m.id !== memoryToDelete)); // Optimistic update
+      setIsDeleteModalOpen(false);
+      setMemoryToDelete(null);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to delete memory.');
+      console.error('Failed to delete memory:', err);
+      // Optionally show error toast here
+      setIsDeleteModalOpen(false);
     }
   };
 
@@ -67,8 +85,8 @@ const MemoryGallery = ({ memberId, memberName, onAddMemory }) => {
                 <MemoryCard 
                   key={memory.id} 
                   memory={memory} 
-                  onDelete={handleDeleteMemory} 
-                  onViewMemory={handleViewMemory} // Pass the handler
+                  onDelete={handleDeleteRequest} // Pass the request handler
+                  onViewMemory={handleViewMemory}
                 />
               ))
             ) : (
@@ -85,6 +103,14 @@ const MemoryGallery = ({ memberId, memberName, onAddMemory }) => {
         onClose={() => setIsViewerModalOpen(false)}
         memory={selectedMemoryForViewer}
         serverUrl={serverUrl}
+      />
+
+      <ConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={confirmDelete}
+        title="Delete Memory?"
+        message="Are you sure you want to delete this memory? This action cannot be undone."
       />
     </div>
   );

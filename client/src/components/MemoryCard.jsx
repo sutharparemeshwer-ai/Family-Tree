@@ -34,20 +34,16 @@ const TrashIcon = () => (
 const MemoryCard = ({ memory, onDelete, onViewMemory }) => {
   const serverUrl = 'http://localhost:5000';
   const firstFile = memory.files && memory.files[0];
-  const videoRef = useRef(null); // Create a ref for the video element
+  const videoRef = useRef(null);
 
   const handleDeleteClick = (e) => {
-    e.stopPropagation(); // Prevent card click if any
-    if (window.confirm('Are you sure you want to delete this memory?')) {
-      onDelete(memory.id);
-    }
+    e.stopPropagation();
+    onDelete(memory.id); // Triggers the modal via parent component
   };
 
   const handleVideoMouseEnter = () => {
-    if (videoRef.current && videoRef.current.paused) { // Only play if currently paused
+    if (videoRef.current && videoRef.current.paused) {
       videoRef.current.play().catch(error => {
-        // Catch and ignore the "play() request was interrupted" error
-        // This error is common with rapid play/pause and doesn't affect functionality
         if (error.name !== "AbortError") {
           console.error("Error attempting to play video:", error);
         }
@@ -56,9 +52,9 @@ const MemoryCard = ({ memory, onDelete, onViewMemory }) => {
   };
 
   const handleVideoMouseLeave = () => {
-    if (videoRef.current && !videoRef.current.paused) { // Only pause if currently playing
+    if (videoRef.current && !videoRef.current.paused) {
       videoRef.current.pause();
-      videoRef.current.currentTime = 0; // Reset video to start
+      videoRef.current.currentTime = 0;
     }
   };
 

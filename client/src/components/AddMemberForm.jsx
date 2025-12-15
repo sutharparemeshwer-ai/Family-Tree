@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import api from '../utils/api'; // Import the api utility
 import axios from 'axios';
+import DatePicker from 'react-datepicker';
+import "react-datepicker/dist/react-datepicker.css";
+import './CustomDatePicker.css'; // Import custom styles
 import './AddMemberForm.css';
 
 const UploadIcon = () => (
@@ -17,17 +20,26 @@ const AddMemberForm = ({ relationType, onCancel, relativeToId, onMemberAdded, cu
     lastName: '',
     nickname: '',
     description: '',
-    birthDate: '',
-    anniversaryDate: ''
+    birthDate: null, // Initialize as null for DatePicker
+    anniversaryDate: null,
+    deathDate: null // Added deathDate support if needed, based on typical requests
   });
   const [profileImage, setProfileImage] = useState(null);
   const [preview, setPreview] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // Define min and max date objects for the year range
+  const minDate = new Date(1800, 0, 1); // January 1, 1800
+  const maxDate = new Date(2040, 11, 31); // December 31, 2040
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleDateChange = (date, name) => {
+    setFormData(prev => ({ ...prev, [name]: date }));
   };
 
   const handleFileChange = (e) => {
@@ -48,8 +60,17 @@ const AddMemberForm = ({ relationType, onCancel, relativeToId, onMemberAdded, cu
     data.append('lastName', formData.lastName);
     data.append('nickname', formData.nickname);
     data.append('description', formData.description);
-    if (formData.birthDate) data.append('birthDate', formData.birthDate);
-    if (formData.anniversaryDate) data.append('anniversaryDate', formData.anniversaryDate);
+    
+    // Format dates to YYYY-MM-DD
+    if (formData.birthDate) {
+        data.append('birthDate', formData.birthDate.toISOString().split('T')[0]);
+    }
+    if (formData.anniversaryDate) {
+        data.append('anniversaryDate', formData.anniversaryDate.toISOString().split('T')[0]);
+    }
+    if (formData.deathDate) {
+        data.append('deathDate', formData.deathDate.toISOString().split('T')[0]);
+    }
     
     if (profileImage) {
       data.append('profileImage', profileImage);
@@ -102,13 +123,56 @@ const AddMemberForm = ({ relationType, onCancel, relativeToId, onMemberAdded, cu
           <div className="form-row">
             <div className="date-input-group">
               <label>Date of Birth</label>
-              <input type="date" name="birthDate" onChange={handleInputChange} />
+              <DatePicker
+                selected={formData.birthDate}
+                onChange={(date) => handleDateChange(date, 'birthDate')}
+                dateFormat="yyyy-MM-dd"
+                placeholderText="Select Date"
+                className="custom-datepicker-input"
+                wrapperClassName="custom-datepicker-wrapper"
+                showYearDropdown
+                scrollableYearDropdown
+                yearDropdownItemNumber={100}
+                minDate={minDate} // Set minDate
+                maxDate={maxDate} // Set maxDate
+              />
             </div>
+            
+            {/* Show Anniversary only for Spouse, or generally if preferred */}
             <div className="date-input-group">
               <label>Anniversary (Optional)</label>
-              <input type="date" name="anniversaryDate" onChange={handleInputChange} />
+              <DatePicker
+                selected={formData.anniversaryDate}
+                onChange={(date) => handleDateChange(date, 'anniversaryDate')}
+                dateFormat="yyyy-MM-dd"
+                placeholderText="Select Date"
+                className="custom-datepicker-input"
+                wrapperClassName="custom-datepicker-wrapper"
+                showYearDropdown
+                scrollableYearDropdown
+                minDate={minDate} // Set minDate
+                maxDate={maxDate} // Set maxDate
+              />
             </div>
           </div>
+
+           <div className="form-row">
+             <div className="date-input-group">
+              <label>Date of Death (Optional)</label>
+              <DatePicker
+                selected={formData.deathDate}
+                onChange={(date) => handleDateChange(date, 'deathDate')}
+                dateFormat="yyyy-MM-dd"
+                placeholderText="Select Date"
+                className="custom-datepicker-input"
+                wrapperClassName="custom-datepicker-wrapper"
+                showYearDropdown
+                scrollableYearDropdown
+                minDate={minDate} // Set minDate
+                maxDate={maxDate} // Set maxDate
+              />
+            </div>
+           </div>
 
           <textarea name="description" placeholder="Description" onChange={handleInputChange}></textarea>
         </div>

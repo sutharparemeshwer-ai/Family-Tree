@@ -8,6 +8,12 @@
   height: 100vh; /* Set container to full viewport height */
 }
 
+/* Navbar adjustment for this page only */
+.memories-page-container .navbar {
+  left: 55%; /* Moved slightly right from 50% */
+  /* transform is still translateX(-50%) from Navbar.css, so this shifts the center point */
+}
+
 .memory-gallery-main {
   flex: 1;
   overflow-y: auto;
@@ -17,5 +23,9 @@
 @media (max-width: 768px) {
   .memory-gallery-main {
     padding-top: 100px;
+  }
+  
+  .memories-page-container .navbar {
+    left: 50%; /* Reset on mobile where sidebar is hidden */
   }
 }
