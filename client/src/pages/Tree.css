@@ -2,32 +2,98 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background-color: #f5f7fa;
+  background-color: var(--bg-light); /* Use global light background */
 }
 
 .tree-content {
   flex: 1;
   position: relative;
-  overflow: hidden; /* React Flow handles scrolling */
+  overflow: hidden;
+  /* Ensure React Flow container takes full space - handled by ReactFlow itself */
 }
 
-/* Ensure React Flow container takes full space */
-.react-flow-wrapper {
-  width: 100%;
-  height: 100%;
+/* Custom background for ReactFlow canvas */
+.react-flow__pane {
+  /* A warm, soft, natural light gradient */
+  background: 
+    radial-gradient(circle at 15% 50%, rgba(76, 175, 80, 0.08), transparent 25%), 
+    radial-gradient(circle at 85% 30%, rgba(129, 199, 132, 0.1), transparent 25%),
+    linear-gradient(135deg, #fdfbf7 0%, #f4f7f6 100%) !important;
+    
+  /* A very subtle, elegant large dot pattern */
+  background-image: 
+    radial-gradient(#ccd5ae 1.5px, transparent 1.5px),
+    radial-gradient(circle at 15% 50%, rgba(76, 175, 80, 0.08), transparent 25%), 
+    radial-gradient(circle at 85% 30%, rgba(129, 199, 132, 0.1), transparent 25%) !important;
+    
+  background-size: 40px 40px, 100% 100%, 100% 100% !important;
+  background-position: 0 0, 0 0, 0 0 !important;
+  transition: background-color 0.3s ease;
 }
 
-.loading-overlay {
+/* React Flow MiniMap */
+.react-flow__minimap {
+  background: rgba(255, 255, 255, 0.8) !important;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(0,0,0,0.05);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+}
+
+.react-flow__minimap-mask {
+  fill: rgba(0,0,0,0.05); /* Lighter mask */
+}
+
+/* React Flow Controls */
+.react-flow__controls {
+  background: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(0,0,0,0.05);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  padding: 4px;
+}
+
+.react-flow__controls-button {
+  background: transparent;
+  border: none !important; /* Remove borders */
+  border-radius: 4px; /* Soft square */
+  color: var(--text-secondary);
+  margin-bottom: 2px;
+  transition: all 0.2s ease;
+}
+
+.react-flow__controls-button:hover {
+  background: rgba(76, 175, 80, 0.1) !important;
+  color: var(--primary-dark) !important;
+}
+
+.react-flow__controls-button svg {
+  fill: currentColor !important;
+}
+
+
+/* Loading and Error Messages */
+.loading-overlay, .error-message {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  font-weight: bold;
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  padding: 25px 40px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  font-weight: 600;
   z-index: 1000;
+  color: var(--text-main);
+  animation: fadeIn 0.5s ease-out;
+}
+
+.error-message {
+  background: rgba(255, 240, 240, 0.9);
+  color: var(--error);
+  border: 1px solid rgba(255, 0, 0, 0.3);
 }
 
 .success-toast {
@@ -35,8 +101,8 @@
   top: 20px;
   left: 50%;
   transform: translateX(-50%);
-  background: #4CAF50;
-  color: white;
+  background: var(--primary-color);
+  color: var(--white);
   padding: 12px 24px;
   border-radius: 30px;
   box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
@@ -49,6 +115,7 @@
   to { top: 20px; opacity: 1; }
 }
 
+/* Empty Tree Prompt */
 .add-self-prompt {
   display: flex;
   flex-direction: column;
@@ -56,28 +123,50 @@
   justify-content: center;
   height: 100%;
   gap: 20px;
+  background: transparent; /* Let container bg show */
 }
 
 .add-self-prompt p {
-  font-size: 1.5rem;
-  color: #666;
+  font-size: 1.6rem;
+  color: var(--text-secondary);
+  font-weight: 500;
 }
 
+/* Button style from Main.css (keep consistent) */
 .hero-cta-btn {
-  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-  color: white;
+  background: linear-gradient(135deg, var(--primary-light), var(--primary-color));
+  color: var(--white);
   border: none;
   padding: 12px 32px;
   font-size: 1.1rem;
-  border-radius: 30px;
+  border-radius: var(--radius-lg);
   cursor: pointer;
-  box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+  box-shadow: var(--shadow-md);
   transition: transform 0.2s, box-shadow 0.2s;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .hero-cta-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+  box-shadow: var(--shadow-lg);
+}
+
+
+/* Tree Title Overlay */
+.tree-title-overlay {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.5);
+  border-radius: 30px; /* More pill-like */
+  padding: 10px 24px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-main);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  letter-spacing: -0.5px;
 }
 
 /* Search Bar Styles */
@@ -88,37 +177,40 @@
 
 .search-container {
   position: relative;
-  width: 250px;
+  width: 280px; /* Slightly wider default */
 }
 
 .search-input {
   width: 100%;
-  padding: 12px 16px;
+  padding: 12px 18px; /* More padding */
   border-radius: 25px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.6); /* Glassy border */
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(10px);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
   font-size: 1rem;
   outline: none;
   transition: all 0.3s ease;
+  color: var(--text-main);
 }
 
 .search-input:focus {
-  background: white;
-  box-shadow: 0 6px 20px rgba(76, 175, 80, 0.2);
-  border-color: #4CAF50;
-  width: 300px; /* Expand on focus */
+  background: var(--white);
+  box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.15), var(--shadow-lg); /* Green glow on focus */
+  border-color: var(--primary-color);
+  width: 320px; /* Expand on focus */
 }
 
 .search-results {
   position: absolute;
-  top: 50px;
+  top: calc(100% + 10px); /* Position below input */
   left: 0;
   right: 0;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg);
   overflow: hidden;
   animation: slideDown 0.2s ease-out;
 }
@@ -126,11 +218,12 @@
 .search-result-item {
   padding: 10px 16px;
   cursor: pointer;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid rgba(240, 240, 240, 0.7);
   transition: background 0.2s;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  color: var(--text-main);
 }
 
 .search-result-item:last-child {
@@ -138,17 +231,17 @@
 }
 
 .search-result-item:hover {
-  background: #f5f9f5;
+  background: var(--bg-light); /* Light background on hover */
 }
 
 .result-name {
   font-weight: 600;
-  color: #333;
+  color: var(--text-main);
 }
 
 .result-nick {
   font-size: 0.8rem;
-  color: #888;
+  color: var(--text-secondary);
 }
 
 /* Hide search bar in printing mode */
@@ -158,16 +251,19 @@
 
 /* Printing Mode - Clean Export Styles */
 .printing-mode .node-add-btn,
-.printing-mode .react-flow__handle {
+.printing-mode .react-flow__handle,
+.printing-mode .react-flow__controls,
+.printing-mode .react-flow__minimap,
+.printing-mode .tree-title-overlay {
   display: none !important;
 }
 
 .printing-mode .react-flow__edge-path,
 .printing-mode .react-flow__edge path {
-  stroke: #333 !important; /* Dark Gray Edge Color */
+  stroke: var(--text-main) !important; /* Dark Gray Edge Color */
   stroke-width: 2px;
   stroke-opacity: 1;
-  stroke-dasharray: 10, 10 !important; /* Larger Dashed lines for export */
+  stroke-dasharray: 8, 8 !important; /* Dashed lines for export */
 }
 
 /* Ensure edges are distinct */
@@ -178,7 +274,7 @@
 /* Responsive Styles */
 @media (max-width: 768px) {
   .search-panel {
-    top: 100px !important; /* Force top position */
+    top: 100px !important;
     left: 50% !important;
     transform: translateX(-50%);
     margin: 0;

@@ -1,88 +1,111 @@
 .action-bar {
   display: flex;
-  gap: 12px;
-  background: white;
-  padding: 10px 16px;
-  border-radius: 50px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  gap: 15px; /* Increased gap */
+  background: var(--glass-bg); /* Glassmorphism background */
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid var(--glass-border);
+  border-radius: 50px; /* Pill shape */
+  box-shadow: var(--shadow-lg); /* Larger shadow */
   position: absolute;
-  top: 90px; /* Below Navbar */
-  right: 20px;
-  z-index: 100; /* Above React Flow */
+  top: 100px; /* Below Navbar, slightly adjusted */
+  right: 30px; /* Adjusted right position */
+  z-index: 100;
+  padding: 10px 20px; /* Adjusted padding */
+  transition: all 0.3s ease;
+}
+
+.action-bar:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15); /* More pronounced shadow on hover */
 }
 
 .action-btn {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px; /* Increased gap for icon and text */
   border: none;
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-weight: 600;
+  padding: 10px 20px; /* Adjusted padding */
+  border-radius: 30px; /* More rounded buttons */
+  font-weight: 600; /* Bolder text */
   cursor: pointer;
-  transition: transform 0.2s, background-color 0.2s;
-  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  font-size: 0.95rem; /* Slightly larger text */
+  color: var(--text-main); /* Default text color */
 }
 
 .action-btn:hover {
   transform: translateY(-2px);
 }
 
+.action-btn .icon {
+  width: 20px; /* Icon size */
+  height: 20px;
+}
+
+/* Specific button styles - using theme colors */
 .download-btn {
-  background-color: #e3f2fd;
-  color: #1976d2;
+  background-color: var(--primary-light);
+  color: var(--white);
+  box-shadow: 0 4px 10px rgba(76, 175, 80, 0.2);
 }
 
 .download-btn:hover {
-  background-color: #bbdefb;
+  background-color: var(--primary-color);
+  box-shadow: 0 6px 15px rgba(76, 175, 80, 0.3);
 }
 
 .share-btn {
-  background-color: #e8f5e9;
-  color: #2e7d32;
+  background-color: var(--accent-color);
+  color: var(--text-main);
+  box-shadow: 0 4px 10px rgba(129, 199, 132, 0.2);
 }
 
 .share-btn:hover {
-  background-color: #c8e6c9;
+  background-color: #a5d6a7; /* Slightly darker accent */
+  box-shadow: 0 6px 15px rgba(129, 199, 132, 0.3);
 }
 
 .book-btn {
-  background-color: #f3e5f5;
-  color: #7b1fa2; /* Purple */
+  background-color: #90caf9; /* Light blue, can be customized */
+  color: var(--text-main);
+  box-shadow: 0 4px 10px rgba(144, 202, 249, 0.2);
 }
 
 .book-btn:hover {
-  background-color: #e1bee7;
-}
-
-.icon {
-  font-size: 1.1rem;
+  background-color: #64b5f6; /* Slightly darker blue */
+  box-shadow: 0 6px 15px rgba(144, 202, 249, 0.3);
 }
 
 /* Responsive Styles */
 @media (max-width: 768px) {
   .action-bar {
     top: auto;
-    bottom: 30px; /* Move to bottom on mobile */
+    bottom: 30px;
     right: auto;
     left: 50%;
     transform: translateX(-50%);
     width: max-content;
     max-width: 90%;
     overflow-x: auto;
+    white-space: nowrap; /* Prevent wrapping */
+    padding: 8px 15px;
+    gap: 10px;
   }
 }
 
 @media (max-width: 480px) {
   .action-btn {
-    padding: 8px; /* Reduce padding */
+    padding: 8px;
+    gap: 0;
   }
   
   .action-btn span:not(.icon) {
     display: none; /* Hide text, show only icon on small screens */
   }
   
-  .action-btn {
-    gap: 0;
+  .action-btn .icon {
+    width: 22px;
+    height: 22px;
   }
 }

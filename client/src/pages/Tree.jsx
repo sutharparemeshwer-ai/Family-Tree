@@ -6,7 +6,7 @@ import ReactFlow, {
   useNodesState, 
   useEdgesState,
   addEdge,
-  ConnectionLineType,
+  ConnectionLineType, // Import ConnectionLineType
   useReactFlow,
   ReactFlowProvider,
   Panel // Import Panel here
@@ -28,6 +28,17 @@ import './Tree.css';
 
 const nodeTypes = {
   familyMember: FamilyNode,
+};
+
+// Define default edge options for consistency
+const defaultEdgeOptions = {
+  animated: true,
+  style: { strokeWidth: 2, stroke: '#81c784' },
+  type: ConnectionLineType.SmoothStep, // Use smoothStep for elegant connections
+  markerEnd: {
+    type: 'arrowclosed',
+    color: '#81c784',
+  },
 };
 
 // Internal component to use ReactFlow hooks
@@ -57,7 +68,8 @@ const TreeVisualizer = ({ familyMembers, serverUrl, onAddRelative, user }) => {
               onAddRelative,
               isHighlighted: false // Default
             },
-            style: {} // Default
+            // Style will be handled by FamilyNode.css now, remove inline style
+            style: {} 
           };
         }
         return node;
@@ -72,31 +84,21 @@ const TreeVisualizer = ({ familyMembers, serverUrl, onAddRelative, user }) => {
         setNodes([]);
         setEdges([]);
     }
-  }, [familyMembers, serverUrl, onAddRelative, setNodes, setEdges, fitView]); // Removed highlightedId
+  }, [familyMembers, serverUrl, onAddRelative, setNodes, setEdges, fitView]);
 
   // 2. Handle Highlighting (Run when highlightedId changes)
   useEffect(() => {
     setNodes((nds) => 
       nds.map((node) => {
-        // Only update styling for familyMember nodes
         if (node.type === 'familyMember') {
-          const isHighlighted = node.id === highlightedId;
-          
-          // Optimization: If state matches, don't return new object (React Flow might compare)
-          // But strict comparison is complex, so we just return new object.
           return {
             ...node,
             data: {
               ...node.data,
-              isHighlighted,
+              isHighlighted: node.id === highlightedId, // Pass highlight status to node data
             },
-            style: isHighlighted ? { 
-              boxShadow: '0 0 25px 8px rgba(76, 175, 80, 0.8)', 
-              borderColor: '#4CAF50',
-              borderWidth: '2px',
-              zIndex: 1000,
-              transition: 'box-shadow 0.3s ease, border-color 0.3s ease'
-            } : {} // Reset style if not highlighted
+            // Remove inline style, let CSS handle it
+            style: {}, 
           };
         }
         return node;
@@ -123,14 +125,14 @@ const TreeVisualizer = ({ familyMembers, serverUrl, onAddRelative, user }) => {
   const flyToMember = (member) => {
     const node = nodes.find(n => n.id === member.id.toString());
     if (node) {
-      const { x, y } = node.position;
-      // Fly animation
-      setCenter(x + 100, y + 75, { zoom: 1.5, duration: 1500 }); // Center on node center (approx)
+      // Find the center of the node for precise centering
+      const x = node.position.x + (node.width / 2 || 0);
+      const y = node.position.y + (node.height / 2 || 0);
+
+      setCenter(x, y, { zoom: 1.5, duration: 800 }); // Smoother and faster fly animation
       setHighlightedId(member.id.toString());
       setSearchQuery('');
       setSearchResults([]);
-      
-      // Highlight persists until user clicks elsewhere
     }
   };
 
@@ -145,17 +147,24 @@ const TreeVisualizer = ({ familyMembers, serverUrl, onAddRelative, user }) => {
       minZoom={0.1}
       attributionPosition="bottom-right"
       onPaneClick={() => setHighlightedId(null)} // Clear highlight on click background
+      defaultEdgeOptions={defaultEdgeOptions} // Apply default edge options
+      connectionLineType={ConnectionLineType.SmoothStep} // Explicitly set connection line type
     >
-      <Controls />
-      <MiniMap nodeStrokeColor={(n) => {
-        if (n.type === 'familyMember') return '#4CAF50';
-        return '#eee';
-      }} />
-      <Background color="#aaa" gap={16} />
+      <Controls className="react-flow-controls" /> {/* Add class for styling */}
+      <MiniMap 
+        nodeStrokeColor={(n) => {
+          if (n.type === 'familyMember') return 'var(--primary-color)'; // Use CSS variable
+          return 'var(--bg-light)';
+        }} 
+        nodeColor="var(--primary-light)" // Use CSS variable for node fill
+        maskColor="rgba(255, 255, 255, 0.2)" // Smoother mask
+        className="react-flow-minimap" // Add class for styling
+      />
+      <Background className="react-flow-background" /> {/* Background is handled by CSS */}
       
       {/* Title Overlay */}
       <Panel position="top-center" className="tree-title-overlay">
-        The {user?.last_name || 'Family'} Lineage
+        {user?.first_name ? `${user.first_name}'s` : 'My'} Family Lineage
       </Panel>
 
       {/* Search Bar Overlay */}
@@ -258,32 +267,19 @@ const Tree = () => {
   const handleDownload = async () => {
     const flowElement = document.querySelector('.react-flow');
     if (flowElement) {
-      // Add printing class to hide UI elements
       flowElement.classList.add('printing-mode');
-      
-      // Manually force dashed lines on all edges to ensure capture
-      const edges = flowElement.querySelectorAll('.react-flow__edge-path, .react-flow__edge path');
-      const originalStyles = [];
-      edges.forEach(edge => {
-        originalStyles.push({
-          dash: edge.style.strokeDasharray,
-          stroke: edge.style.stroke,
-          width: edge.style.strokeWidth
-        });
-        edge.style.setProperty('stroke-dasharray', '10, 10', 'important');
-        edge.style.setProperty('stroke', '#333', 'important');
-        edge.style.setProperty('stroke-width', '2px', 'important');
-      });
-      
-      // Wait a moment for styles to apply
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise(resolve => setTimeout(resolve, 500)); // Wait for styles to apply
 
       try {
         const dataUrl = await toPng(flowElement, {
           filter: (node) => {
+            // Filter out React Flow controls and minimap for export
             return (
               !node.classList?.contains('react-flow__controls') &&
-              !node.classList?.contains('react-flow__minimap')
+              !node.classList?.contains('react-flow__minimap') &&
+              !node.classList?.contains('action-bar') && // Exclude action bar
+              !node.classList?.contains('tree-title-overlay') && // Exclude title overlay
+              !node.classList?.contains('search-panel') // Exclude search panel
             );
           },
           backgroundColor: '#f5f7fa',
@@ -297,14 +293,7 @@ const Tree = () => {
       } catch (err) {
         console.error('Download failed', err);
       } finally {
-        // Remove printing class
         flowElement.classList.remove('printing-mode');
-        // Revert inline styles
-        edges.forEach((edge, i) => {
-          edge.style.strokeDasharray = originalStyles[i].dash;
-          edge.style.stroke = originalStyles[i].stroke;
-          edge.style.strokeWidth = originalStyles[i].width;
-        });
       }
     }
   };
@@ -315,29 +304,17 @@ const Tree = () => {
     const flowElement = document.querySelector('.react-flow');
     if (flowElement) {
       flowElement.classList.add('printing-mode');
-
-      // Manually force dashed lines on all edges
-      const edges = flowElement.querySelectorAll('.react-flow__edge-path, .react-flow__edge path');
-      const originalStyles = [];
-      edges.forEach(edge => {
-        originalStyles.push({
-          dash: edge.style.strokeDasharray,
-          stroke: edge.style.stroke,
-          width: edge.style.strokeWidth
-        });
-        edge.style.setProperty('stroke-dasharray', '10, 10', 'important');
-        edge.style.setProperty('stroke', '#333', 'important');
-        edge.style.setProperty('stroke-width', '2px', 'important');
-      });
-
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise(resolve => setTimeout(resolve, 500)); // Wait for styles to apply
 
       try {
         const treeImageBase64 = await toPng(flowElement, {
           filter: (node) => {
             return (
               !node.classList?.contains('react-flow__controls') &&
-              !node.classList?.contains('react-flow__minimap')
+              !node.classList?.contains('react-flow__minimap') &&
+              !node.classList?.contains('action-bar') && // Exclude action bar
+              !node.classList?.contains('tree-title-overlay') && // Exclude title overlay
+              !node.classList?.contains('search-panel') // Exclude search panel
             );
           },
           backgroundColor: '#f5f7fa',
@@ -354,12 +331,6 @@ const Tree = () => {
         setMembersError('Failed to generate book.');
       } finally {
         flowElement.classList.remove('printing-mode');
-        // Revert inline styles
-        edges.forEach((edge, i) => {
-          edge.style.strokeDasharray = originalStyles[i].dash;
-          edge.style.stroke = originalStyles[i].stroke;
-          edge.style.strokeWidth = originalStyles[i].width;
-        });
       }
     }
   };
