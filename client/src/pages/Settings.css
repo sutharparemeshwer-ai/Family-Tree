@@ -197,3 +197,41 @@ hr {
   background-color: #a5d6a7;
   cursor: not-allowed;
 }
+
+/* Responsive Styles for Mobile */
+@media (max-width: 768px) {
+  .settings-content {
+    padding-top: 100px;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .settings-form {
+    padding: 1.5rem;
+  }
+
+  .settings-form-body {
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .settings-avatar-section {
+    flex-basis: auto;
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .form-actions {
+    text-align: center;
+  }
+
+  .btn-primary {
+    width: 100%;
+    padding: 0.9rem;
+  }
+}

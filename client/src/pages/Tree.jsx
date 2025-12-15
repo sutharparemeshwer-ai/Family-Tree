@@ -261,30 +261,51 @@ const Tree = () => {
       // Add printing class to hide UI elements
       flowElement.classList.add('printing-mode');
       
+      // Manually force dashed lines on all edges to ensure capture
+      const edges = flowElement.querySelectorAll('.react-flow__edge-path, .react-flow__edge path');
+      const originalStyles = [];
+      edges.forEach(edge => {
+        originalStyles.push({
+          dash: edge.style.strokeDasharray,
+          stroke: edge.style.stroke,
+          width: edge.style.strokeWidth
+        });
+        edge.style.setProperty('stroke-dasharray', '10, 10', 'important');
+        edge.style.setProperty('stroke', '#333', 'important');
+        edge.style.setProperty('stroke-width', '2px', 'important');
+      });
+      
       // Wait a moment for styles to apply
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise(resolve => setTimeout(resolve, 500));
 
-      toPng(flowElement, {
-        filter: (node) => {
-          return (
-            !node.classList?.contains('react-flow__controls') &&
-            !node.classList?.contains('react-flow__minimap')
-          );
-        },
-        backgroundColor: '#f5f7fa',
-        pixelRatio: 3, // HD Quality
-        style: {
-          width: '100%',
-          height: '100%',
-        }
-      })
-      .then((dataUrl) => {
+      try {
+        const dataUrl = await toPng(flowElement, {
+          filter: (node) => {
+            return (
+              !node.classList?.contains('react-flow__controls') &&
+              !node.classList?.contains('react-flow__minimap')
+            );
+          },
+          backgroundColor: '#f5f7fa',
+          pixelRatio: 3, // HD Quality
+          style: {
+            width: '100%',
+            height: '100%',
+          }
+        });
         download(dataUrl, 'my-family-tree.png');
-      })
-      .finally(() => {
+      } catch (err) {
+        console.error('Download failed', err);
+      } finally {
         // Remove printing class
         flowElement.classList.remove('printing-mode');
-      });
+        // Revert inline styles
+        edges.forEach((edge, i) => {
+          edge.style.strokeDasharray = originalStyles[i].dash;
+          edge.style.stroke = originalStyles[i].stroke;
+          edge.style.strokeWidth = originalStyles[i].width;
+        });
+      }
     }
   };
 
@@ -294,33 +315,52 @@ const Tree = () => {
     const flowElement = document.querySelector('.react-flow');
     if (flowElement) {
       flowElement.classList.add('printing-mode');
-      await new Promise(resolve => setTimeout(resolve, 100));
 
-      toPng(flowElement, {
-        filter: (node) => {
-          return (
-            !node.classList?.contains('react-flow__controls') &&
-            !node.classList?.contains('react-flow__minimap')
-          );
-        },
-        backgroundColor: '#f5f7fa',
-        pixelRatio: 2, // Slightly lower than download to avoid massive PDF size
-        style: {
-          width: '100%',
-          height: '100%',
-        }
-      })
-      .then(async (treeImageBase64) => {
+      // Manually force dashed lines on all edges
+      const edges = flowElement.querySelectorAll('.react-flow__edge-path, .react-flow__edge path');
+      const originalStyles = [];
+      edges.forEach(edge => {
+        originalStyles.push({
+          dash: edge.style.strokeDasharray,
+          stroke: edge.style.stroke,
+          width: edge.style.strokeWidth
+        });
+        edge.style.setProperty('stroke-dasharray', '10, 10', 'important');
+        edge.style.setProperty('stroke', '#333', 'important');
+        edge.style.setProperty('stroke-width', '2px', 'important');
+      });
+
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      try {
+        const treeImageBase64 = await toPng(flowElement, {
+          filter: (node) => {
+            return (
+              !node.classList?.contains('react-flow__controls') &&
+              !node.classList?.contains('react-flow__minimap')
+            );
+          },
+          backgroundColor: '#f5f7fa',
+          pixelRatio: 2, // Slightly lower than download to avoid massive PDF size
+          style: {
+            width: '100%',
+            height: '100%',
+          }
+        });
         await generateFamilyBook(familyMembers, treeImageBase64, user, serverUrl);
         setSuccessMessage('Family Book generated successfully!');
-      })
-      .catch((err) => {
+      } catch (err) {
         console.error('Error generating book:', err);
         setMembersError('Failed to generate book.');
-      })
-      .finally(() => {
+      } finally {
         flowElement.classList.remove('printing-mode');
-      });
+        // Revert inline styles
+        edges.forEach((edge, i) => {
+          edge.style.strokeDasharray = originalStyles[i].dash;
+          edge.style.stroke = originalStyles[i].stroke;
+          edge.style.strokeWidth = originalStyles[i].width;
+        });
+      }
     }
   };
 

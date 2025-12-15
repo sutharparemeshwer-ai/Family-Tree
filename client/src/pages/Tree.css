@@ -162,10 +162,12 @@
   display: none !important;
 }
 
-.printing-mode .react-flow__edge-path {
+.printing-mode .react-flow__edge-path,
+.printing-mode .react-flow__edge path {
   stroke: #333 !important; /* Dark Gray Edge Color */
   stroke-width: 2px;
   stroke-opacity: 1;
+  stroke-dasharray: 10, 10 !important; /* Larger Dashed lines for export */
 }
 
 /* Ensure edges are distinct */
