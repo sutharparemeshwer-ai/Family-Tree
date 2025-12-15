@@ -3,8 +3,19 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import EventsWidget from '../components/EventsWidget';
 import ProfileSelector from '../components/ProfileSelector';
-import NewsFeed from '../components/NewsFeed'; // NEW
+import NewsFeed from '../components/NewsFeed';
 import './Main.css';
+
+// Reusing existing icons or replacing with better ones if necessary
+const TreeIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M18 20V6a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v14"></path>
+    <path d="M12 4v16"></path>
+    <path d="M4 18h16"></path>
+    <path d="M8 12h8"></path>
+    <path d="M12 8h0"></path>
+  </svg>
+);
 
 const MemoriesIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -14,28 +25,24 @@ const MemoriesIcon = () => (
   </svg>
 );
 
-
-const Main = ({ user }) => { // Accept user prop
+const Main = ({ user }) => {
   const navigate = useNavigate();
   const [isProfileSelectorOpen, setIsProfileSelectorOpen] = useState(false);
   const [activeProfile, setActiveProfile] = useState(null);
 
-  // Check for active profile on load
   useEffect(() => {
     const storedProfile = localStorage.getItem('activeProfile');
     if (storedProfile) {
       setActiveProfile(JSON.parse(storedProfile));
     } else {
-      setIsProfileSelectorOpen(true); // Open selector if no profile set
+      setIsProfileSelectorOpen(true);
     }
   }, []);
 
   const handleProfileSelected = () => {
-    // Re-read active profile after selection
     setActiveProfile(JSON.parse(localStorage.getItem('activeProfile')));
     setIsProfileSelectorOpen(false);
   };
-
 
   const handleNavigateToTree = () => {
     navigate('/tree');
@@ -53,36 +60,39 @@ const Main = ({ user }) => { // Accept user prop
           {[...Array(20)].map((_, i) => <span key={i} />)}
         </div>
         <div className="hero-content-wrapper">
-          <h1 className="hero-title">Welcome to the Family Tree</h1>
-          <p className="hero-subtitle">Draw your family in a creative way</p>
+          <h1 className="hero-title">Connect. Preserve. Explore.</h1>
+          <p className="hero-subtitle">
+            Your family's legacy, beautifully mapped and cherished.
+          </p>
           <div className="hero-cta-container">
             <button className="hero-cta-btn" onClick={handleNavigateToTree}>
-              <i className="fa-solid fa-tree"></i>
-              Make Your Tree Now
+              <TreeIcon />
+              Build Your Tree
             </button>
             <button className="hero-cta-btn memories-btn" onClick={handleNavigateToMemories}>
               <MemoriesIcon />
-              Make Memories
+              Capture Memories
             </button>
           </div>
           
-          <EventsWidget />
-          
-          {activeProfile && <NewsFeed />}
+          <div className="main-widgets-container">
+            <EventsWidget />
+            {activeProfile && <NewsFeed />}
+          </div>
         </div>
       </section>
 
-            <ProfileSelector
-              isOpen={isProfileSelectorOpen}
-              onClose={() => setIsProfileSelectorOpen(false)}
-              onProfileSelected={handleProfileSelected}
-            />
+      <ProfileSelector
+        isOpen={isProfileSelectorOpen}
+        onClose={() => setIsProfileSelectorOpen(false)}
+        onProfileSelected={handleProfileSelected}
+      />
       
-            <footer className="main-footer">
-              <p>&copy; {new Date().getFullYear()} Family Tree App. All rights reserved.</p>
-            </footer>
-          </div>
-        );
-      };
-      
-      export default Main;
+      <footer className="main-footer">
+        <p>&copy; {new Date().getFullYear()} Family Tree App. All rights reserved.</p>
+      </footer>
+    </div>
+  );
+};
+
+export default Main;

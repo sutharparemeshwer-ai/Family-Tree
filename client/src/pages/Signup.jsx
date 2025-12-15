@@ -1,17 +1,10 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
-import './Signup.css';
+import './AuthShared.css';
 
-// SVG Icon for the profile image placeholder
-const ProfileUploadIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-    <circle cx="12" cy="7" r="4"></circle>
-  </svg>
-);
-
-const UserInputIcon = () => (
+// Icons
+const UserIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
     <circle cx="12" cy="7" r="4"></circle>
@@ -32,6 +25,28 @@ const PasswordIcon = () => (
   </svg>
 );
 
+const CameraIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+    <circle cx="12" cy="13" r="4"></circle>
+  </svg>
+);
+
+const EyeIcon = ({ visible }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="eye-icon">
+    {visible ? (
+      <>
+        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+        <circle cx="12" cy="12" r="3"></circle>
+      </>
+    ) : (
+      <>
+        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+        <line x1="1" y1="1" x2="23" y2="23"></line>
+      </>
+    )}
+  </svg>
+);
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -42,6 +57,7 @@ const Signup = () => {
   });
   const [profileImage, setProfileImage] = useState(null);
   const [preview, setPreview] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
@@ -59,13 +75,15 @@ const Signup = () => {
     }
   };
 
+  const togglePasswordVisibility = () => setShowPassword(!showPassword);
+
   const onSubmit = async e => {
     e.preventDefault();
     setError('');
     setMessage('');
 
     if (!email || !first_name || !last_name || !password) {
-      setError('All fields except profile image are required.');
+      setError('Please fill in all required fields.');
       return;
     }
 
@@ -85,70 +103,149 @@ const Signup = () => {
           'Content-Type': 'multipart/form-data',
         },
       });
-      setMessage(res.data.message + ' Redirecting to login...');
+      setMessage('Account created! Redirecting to login...');
       setTimeout(() => {
         navigate('/login');
       }, 2000);
     } catch (err) {
-      setError(err.response?.data?.message || 'An error occurred during signup.');
+      setError(err.response?.data?.message || 'Signup failed. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="signup-container">
-      <form className="signup-form" onSubmit={onSubmit}>
-        <h2 className="form-title">Create Your Account</h2>
-        {error && <p className="error-message">{error}</p>}
-        {message && <p className="success-message">{message}</p>}
-        
-        <div className="profile-image-section">
-          <label htmlFor="profile-image-upload" className="profile-image-label">
-            {preview ? (
-              <img src={preview} alt="Profile Preview" className="profile-preview" />
-            ) : (
-              <div className="profile-icon-container">
-                <ProfileUploadIcon />
-                <span>Add Photo</span>
-              </div>
-            )}
-          </label>
-          <input 
-            id="profile-image-upload"
-            type="file" 
-            onChange={onFileChange} 
-            accept="image/*"
-          />
+    <div className="auth-page">
+      <div className="auth-card">
+
+        <div className="auth-header">
+          <h2 className="auth-title">Create Account</h2>
+          <p className="auth-subtitle">Start building your family tree</p>
         </div>
 
-        <div className="input-group">
-          <div className="input-row">
-            <span className={`input-icon ${email.length > 0 ? 'filled' : ''}`}><EmailIcon /></span>
-            <input type="email" name="email" value={email} onChange={onChange} placeholder="Email" required />
+        {error && (
+          <div className="auth-error">
+             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            {error}
           </div>
-          <div className="input-row">
-            <span className={`input-icon ${first_name.length > 0 ? 'filled' : ''}`}><UserInputIcon /></span>
-            <input type="text" name="first_name" value={first_name} onChange={onChange} placeholder="First Name" required />
+        )}
+        
+        {message && (
+          <div className="auth-error" style={{ background: '#ecfdf5', borderColor: '#d1fae5', color: '#047857' }}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            {message}
           </div>
-          <div className="input-row">
-            <span className={`input-icon ${last_name.length > 0 ? 'filled' : ''}`}><UserInputIcon /></span>
-            <input type="text" name="last_name" value={last_name} onChange={onChange} placeholder="Last Name" required />
+        )}
+
+        <form className="auth-form" onSubmit={onSubmit}>
+          <div className="profile-upload-container">
+            <label htmlFor="profile-image-upload" className="profile-upload-label">
+              {preview ? (
+                <img src={preview} alt="Preview" className="profile-preview" />
+              ) : (
+                <div className="upload-placeholder">
+                  <CameraIcon />
+                  <span>Add Photo</span>
+                </div>
+              )}
+            </label>
+            <input 
+              id="profile-image-upload"
+              type="file" 
+              onChange={onFileChange} 
+              accept="image/*"
+              style={{ display: 'none' }}
+            />
           </div>
-          <div className="input-row">
-            <span className={`input-icon ${password.length > 0 ? 'filled' : ''}`}><PasswordIcon /></span>
-            <input type="password" name="password" value={password} onChange={onChange} placeholder="Password" required />
+
+          <div className="input-group">
+            <div className={`input-field ${email ? 'active' : ''}`}>
+              <div className="icon-wrapper">
+                <EmailIcon />
+              </div>
+              <input 
+                type="email" 
+                name="email" 
+                id="signup-email"
+                value={email} 
+                onChange={onChange} 
+                required 
+              />
+              <label htmlFor="signup-email">Email Address</label>
+            </div>
+
+            <div className={`input-field ${first_name ? 'active' : ''}`}>
+              <div className="icon-wrapper">
+                <UserIcon />
+              </div>
+              <input 
+                type="text" 
+                name="first_name" 
+                id="first_name"
+                value={first_name} 
+                onChange={onChange} 
+                required 
+              />
+              <label htmlFor="first_name">First Name</label>
+            </div>
+
+            <div className={`input-field ${last_name ? 'active' : ''}`}>
+              <div className="icon-wrapper">
+                <UserIcon />
+              </div>
+              <input 
+                type="text" 
+                name="last_name" 
+                id="last_name"
+                value={last_name} 
+                onChange={onChange} 
+                required 
+              />
+              <label htmlFor="last_name">Last Name</label>
+            </div>
+
+            <div className={`input-field ${password ? 'active' : ''}`}>
+              <div className="icon-wrapper">
+                <PasswordIcon />
+              </div>
+              <input 
+                type={showPassword ? "text" : "password"} 
+                name="password" 
+                id="signup-password"
+                value={password} 
+                onChange={onChange} 
+                required 
+              />
+              <label htmlFor="signup-password">Password</label>
+              <button 
+                type="button" 
+                className="password-toggle"
+                onClick={togglePasswordVisibility}
+                tabIndex="-1"
+              >
+                <EyeIcon visible={showPassword} />
+              </button>
+            </div>
           </div>
+          
+          <button type="submit" className="auth-submit-btn" disabled={loading}>
+             {loading ? <span className="loading-spinner"></span> : 'Sign Up'}
+          </button>
+        </form>
+
+        <div className="auth-footer">
+          <p>
+            Already have an account? <Link to="/login">Log In</Link>
+          </p>
         </div>
-        
-        <button type="submit" className="submit-btn" disabled={loading}>
-          {loading ? 'Signing Up...' : 'Sign Up'}
-        </button>
-        
-        <p className="login-link">
-          Already have an account? <Link to="/login">Log In</Link>
-        </p>
-      </form>
+      </div>
     </div>
   );
 };
