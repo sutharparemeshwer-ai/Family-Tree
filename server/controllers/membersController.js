@@ -271,9 +271,115 @@ const getUpcomingEvents = async (req, res) => {
   }
 };
 
+const updateMember = async (req, res) => {
+  const memberId = req.params.id;
+  const { firstName, lastName, nickname, description, birthDate, anniversaryDate, deathDate } = req.body;
+  const tree_owner_id = req.user.userId;
+
+  // Build the update query dynamically
+  const updates = [];
+  const values = [];
+  let paramIndex = 1;
+
+  if (firstName) {
+    updates.push(`first_name = $${paramIndex++}`);
+    values.push(firstName);
+  }
+  if (lastName) {
+    updates.push(`last_name = $${paramIndex++}`);
+    values.push(lastName);
+  }
+  if (nickname !== undefined) { // Allow clearing nickname
+    updates.push(`nickname = $${paramIndex++}`);
+    values.push(nickname);
+  }
+  if (description !== undefined) {
+    updates.push(`description = $${paramIndex++}`);
+    values.push(description);
+  }
+  if (birthDate !== undefined) {
+    updates.push(`birth_date = $${paramIndex++}`);
+    values.push(birthDate || null);
+  }
+  if (anniversaryDate !== undefined) {
+    updates.push(`anniversary_date = $${paramIndex++}`);
+    values.push(anniversaryDate || null);
+  }
+  if (deathDate !== undefined) {
+    updates.push(`death_date = $${paramIndex++}`); // Assuming column exists
+    values.push(deathDate || null);
+  }
+
+  if (req.file) {
+    updates.push(`profile_img_url = $${paramIndex++}`);
+    values.push(`/uploads/${req.file.filename}`);
+  }
+
+  if (updates.length === 0) {
+    return res.status(400).json({ message: 'No fields to update.' });
+  }
+
+  values.push(memberId);
+  values.push(tree_owner_id);
+
+  const query = `
+    UPDATE family_members
+    SET ${updates.join(', ')}
+    WHERE id = $${paramIndex++} AND tree_owner_id = $${paramIndex++}
+    RETURNING *;
+  `;
+
+  try {
+    const result = await db.query(query, values);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Member not found or unauthorized.' });
+    }
+    res.json({ message: 'Member updated successfully', member: result.rows[0] });
+  } catch (error) {
+    console.error('Error updating member:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+const deleteMember = async (req, res) => {
+  const memberId = req.params.id;
+  const tree_owner_id = req.user.userId;
+
+  try {
+    // Check if member exists and belongs to user
+    const checkQuery = 'SELECT * FROM family_members WHERE id = $1 AND tree_owner_id = $2';
+    const checkResult = await db.query(checkQuery, [memberId, tree_owner_id]);
+
+    if (checkResult.rows.length === 0) {
+      return res.status(404).json({ message: 'Member not found or unauthorized.' });
+    }
+
+    // Delete the member
+    // Note: Relationships (father_id, mother_id, spouse_id) pointing to this member 
+    // should ideally be set to NULL or handled. For now, we assume simple deletion.
+    // If you have foreign key constraints, you might need to update children first.
+    // Assuming ON DELETE SET NULL or NO ACTION with manual cleanup.
+    
+    // Manual cleanup for relationships to prevent orphans/errors if constraints exist
+    await db.query('UPDATE family_members SET father_id = NULL WHERE father_id = $1', [memberId]);
+    await db.query('UPDATE family_members SET mother_id = NULL WHERE mother_id = $1', [memberId]);
+    await db.query('UPDATE family_members SET spouse_id = NULL WHERE spouse_id = $1', [memberId]);
+
+    const deleteQuery = 'DELETE FROM family_members WHERE id = $1';
+    await db.query(deleteQuery, [memberId]);
+
+    res.json({ message: 'Member deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting member:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
 module.exports = {
   createMember,
   getMembers,
-  getUpcomingEvents
+  getUpcomingEvents,
+  updateMember,
+  deleteMember
 };
 

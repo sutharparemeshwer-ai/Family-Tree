@@ -6,10 +6,10 @@ import ReactFlow, {
   useNodesState, 
   useEdgesState,
   addEdge,
-  ConnectionLineType, // Import ConnectionLineType
+  ConnectionLineType,
   useReactFlow,
   ReactFlowProvider,
-  Panel // Import Panel here
+  Panel
 } from 'reactflow';
 import { toPng } from 'html-to-image';
 import download from 'downloadjs';
@@ -21,6 +21,7 @@ import AddMemberForm from '../components/AddMemberForm';
 import ActionBar from '../components/ActionBar';
 import ShareModal from '../components/ShareModal';
 import FamilyNode from '../components/FamilyNode';
+import ConfirmationModal from '../components/ConfirmationModal'; // Import ConfirmationModal
 import api from '../utils/api';
 import { getLayoutedElements } from '../utils/treeLayout';
 import { generateFamilyBook } from '../utils/bookGenerator';
@@ -30,11 +31,10 @@ const nodeTypes = {
   familyMember: FamilyNode,
 };
 
-// Define default edge options for consistency
 const defaultEdgeOptions = {
   animated: true,
   style: { strokeWidth: 2, stroke: '#81c784' },
-  type: ConnectionLineType.SmoothStep, // Use smoothStep for elegant connections
+  type: ConnectionLineType.SmoothStep,
   markerEnd: {
     type: 'arrowclosed',
     color: '#81c784',
@@ -42,7 +42,7 @@ const defaultEdgeOptions = {
 };
 
 // Internal component to use ReactFlow hooks
-const TreeVisualizer = ({ familyMembers, serverUrl, onAddRelative, user }) => {
+const TreeVisualizer = ({ familyMembers, serverUrl, onAddRelative, onEdit, onDelete, user }) => {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const { fitView, setCenter, zoomTo } = useReactFlow();
@@ -52,12 +52,11 @@ const TreeVisualizer = ({ familyMembers, serverUrl, onAddRelative, user }) => {
   const [searchResults, setSearchResults] = useState([]);
   const [highlightedId, setHighlightedId] = useState(null);
 
-  // 1. Initial Layout Calculation (Run only when family members change)
+  // 1. Initial Layout Calculation
   useEffect(() => {
     if (familyMembers.length > 0) {
       const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(familyMembers);
 
-      // Initialize nodes with base data
       const initialNodes = layoutedNodes.map((node) => {
         if (node.type === 'familyMember') {
           return {
@@ -66,9 +65,10 @@ const TreeVisualizer = ({ familyMembers, serverUrl, onAddRelative, user }) => {
               ...node.data, 
               serverUrl, 
               onAddRelative,
-              isHighlighted: false // Default
+              onEdit,   // Pass edit handler
+              onDelete, // Pass delete handler
+              isHighlighted: false
             },
-            // Style will be handled by FamilyNode.css now, remove inline style
             style: {} 
           };
         }
@@ -78,15 +78,14 @@ const TreeVisualizer = ({ familyMembers, serverUrl, onAddRelative, user }) => {
       setNodes(initialNodes);
       setEdges(layoutedEdges);
       
-      // Fit view only on data load
       setTimeout(() => fitView({ padding: 0.2 }), 50);
     } else {
         setNodes([]);
         setEdges([]);
     }
-  }, [familyMembers, serverUrl, onAddRelative, setNodes, setEdges, fitView]);
+  }, [familyMembers, serverUrl, onAddRelative, onEdit, onDelete, setNodes, setEdges, fitView]);
 
-  // 2. Handle Highlighting (Run when highlightedId changes)
+  // 2. Handle Highlighting
   useEffect(() => {
     setNodes((nds) => 
       nds.map((node) => {
@@ -95,9 +94,8 @@ const TreeVisualizer = ({ familyMembers, serverUrl, onAddRelative, user }) => {
             ...node,
             data: {
               ...node.data,
-              isHighlighted: node.id === highlightedId, // Pass highlight status to node data
+              isHighlighted: node.id === highlightedId,
             },
-            // Remove inline style, let CSS handle it
             style: {}, 
           };
         }
@@ -115,7 +113,7 @@ const TreeVisualizer = ({ familyMembers, serverUrl, onAddRelative, user }) => {
         `${member.first_name} ${member.last_name || ''}`.toLowerCase().includes(query.toLowerCase()) ||
         (member.nickname && member.nickname.toLowerCase().includes(query.toLowerCase()))
       );
-      setSearchResults(results.slice(0, 5)); // Limit to 5
+      setSearchResults(results.slice(0, 5));
     } else {
       setSearchResults([]);
     }
@@ -125,11 +123,10 @@ const TreeVisualizer = ({ familyMembers, serverUrl, onAddRelative, user }) => {
   const flyToMember = (member) => {
     const node = nodes.find(n => n.id === member.id.toString());
     if (node) {
-      // Find the center of the node for precise centering
       const x = node.position.x + (node.width / 2 || 0);
       const y = node.position.y + (node.height / 2 || 0);
 
-      setCenter(x, y, { zoom: 1.5, duration: 800 }); // Smoother and faster fly animation
+      setCenter(x, y, { zoom: 1.5, duration: 800 });
       setHighlightedId(member.id.toString());
       setSearchQuery('');
       setSearchResults([]);
@@ -146,28 +143,26 @@ const TreeVisualizer = ({ familyMembers, serverUrl, onAddRelative, user }) => {
       fitView
       minZoom={0.1}
       attributionPosition="bottom-right"
-      onPaneClick={() => setHighlightedId(null)} // Clear highlight on click background
-      defaultEdgeOptions={defaultEdgeOptions} // Apply default edge options
-      connectionLineType={ConnectionLineType.SmoothStep} // Explicitly set connection line type
+      onPaneClick={() => setHighlightedId(null)}
+      defaultEdgeOptions={defaultEdgeOptions}
+      connectionLineType={ConnectionLineType.SmoothStep}
     >
-      <Controls className="react-flow-controls" /> {/* Add class for styling */}
+      <Controls className="react-flow-controls" />
       <MiniMap 
         nodeStrokeColor={(n) => {
-          if (n.type === 'familyMember') return 'var(--primary-color)'; // Use CSS variable
+          if (n.type === 'familyMember') return 'var(--primary-color)';
           return 'var(--bg-light)';
         }} 
-        nodeColor="var(--primary-light)" // Use CSS variable for node fill
-        maskColor="rgba(255, 255, 255, 0.2)" // Smoother mask
-        className="react-flow-minimap" // Add class for styling
+        nodeColor="var(--primary-light)"
+        maskColor="rgba(255, 255, 255, 0.2)"
+        className="react-flow-minimap"
       />
-      <Background className="react-flow-background" /> {/* Background is handled by CSS */}
+      <Background className="react-flow-background" />
       
-      {/* Title Overlay */}
       <Panel position="top-center" className="tree-title-overlay">
         {user?.first_name ? `${user.first_name}'s` : 'My'} Family Lineage
       </Panel>
 
-      {/* Search Bar Overlay */}
       <Panel position="top-left" style={{ top: 80 }} className="search-panel">
         <div className="search-container">
           <input 
@@ -202,15 +197,22 @@ const Tree = () => {
   const [familyMembers, setFamilyMembers] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
+  
+  // Edit & Add State
   const [relationType, setRelationType] = useState('');
   const [relativeToId, setRelativeToId] = useState(null);
+  const [editingMember, setEditingMember] = useState(null); // Track member being edited
+
+  // Delete State
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [memberToDelete, setMemberToDelete] = useState(null);
+
   const [loadingMembers, setLoadingMembers] = useState(true);
   const [membersError, setMembersError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
   const serverUrl = 'http://localhost:5000';
 
-  // Fetch Family Members
   const fetchFamilyMembers = useCallback(async () => {
     setLoadingMembers(true);
     setMembersError('');
@@ -233,12 +235,11 @@ const Tree = () => {
     }
   }, [fetchFamilyMembers]);
 
-  // Auto-hide success message after 0.5 seconds
   useEffect(() => {
     if (successMessage) {
       const timer = setTimeout(() => {
         setSuccessMessage('');
-      }, 500);
+      }, 2000); // Increased timeout for visibility
       return () => clearTimeout(timer);
     }
   }, [successMessage]);
@@ -246,6 +247,7 @@ const Tree = () => {
   const handleAddRelative = useCallback((type, targetMemberId) => {
     setRelationType(type);
     setRelativeToId(targetMemberId);
+    setEditingMember(null); // Ensure we are not editing
     setModalOpen(true);
     setSuccessMessage('');
   }, []);
@@ -253,14 +255,40 @@ const Tree = () => {
   const handleAddSelf = () => {
     setRelationType('Self');
     setRelativeToId(null);
+    setEditingMember(null);
     setModalOpen(true);
     setSuccessMessage('');
   };
 
-  const handleMemberAdded = async (message) => {
+  const handleEditMember = useCallback((member) => {
+    setEditingMember(member);
+    setModalOpen(true);
+    setSuccessMessage('');
+  }, []);
+
+  const handleDeleteRequest = useCallback((memberId) => {
+    setMemberToDelete(memberId);
+    setIsDeleteModalOpen(true);
+  }, []);
+
+  const confirmDelete = async () => {
+    if (!memberToDelete) return;
+    try {
+      await api.delete(`/members/${memberToDelete}`);
+      setSuccessMessage('Member deleted successfully.');
+      setIsDeleteModalOpen(false);
+      setMemberToDelete(null);
+      await fetchFamilyMembers(); // Refresh tree
+    } catch (err) {
+      console.error('Failed to delete member:', err);
+      setMembersError('Failed to delete member.');
+      setIsDeleteModalOpen(false);
+    }
+  };
+
+  const handleMemberSaved = async (message) => {
     setModalOpen(false);
-    setSuccessMessage(message || 'Member added successfully!');
-    await new Promise(resolve => setTimeout(resolve, 300));
+    setSuccessMessage(message || 'Operation successful!');
     await fetchFamilyMembers();
   };
 
@@ -268,26 +296,22 @@ const Tree = () => {
     const flowElement = document.querySelector('.react-flow');
     if (flowElement) {
       flowElement.classList.add('printing-mode');
-      await new Promise(resolve => setTimeout(resolve, 500)); // Wait for styles to apply
+      await new Promise(resolve => setTimeout(resolve, 500));
 
       try {
         const dataUrl = await toPng(flowElement, {
           filter: (node) => {
-            // Filter out React Flow controls and minimap for export
             return (
               !node.classList?.contains('react-flow__controls') &&
               !node.classList?.contains('react-flow__minimap') &&
-              !node.classList?.contains('action-bar') && // Exclude action bar
-              !node.classList?.contains('tree-title-overlay') && // Exclude title overlay
-              !node.classList?.contains('search-panel') // Exclude search panel
+              !node.classList?.contains('action-bar') &&
+              !node.classList?.contains('tree-title-overlay') &&
+              !node.classList?.contains('search-panel')
             );
           },
           backgroundColor: '#f5f7fa',
-          pixelRatio: 3, // HD Quality
-          style: {
-            width: '100%',
-            height: '100%',
-          }
+          pixelRatio: 3,
+          style: { width: '100%', height: '100%' }
         });
         download(dataUrl, 'my-family-tree.png');
       } catch (err) {
@@ -300,11 +324,10 @@ const Tree = () => {
 
   const handleGenerateBook = async () => {
     setSuccessMessage('Generating Family Book... Please wait.');
-    
     const flowElement = document.querySelector('.react-flow');
     if (flowElement) {
       flowElement.classList.add('printing-mode');
-      await new Promise(resolve => setTimeout(resolve, 500)); // Wait for styles to apply
+      await new Promise(resolve => setTimeout(resolve, 500));
 
       try {
         const treeImageBase64 = await toPng(flowElement, {
@@ -312,17 +335,14 @@ const Tree = () => {
             return (
               !node.classList?.contains('react-flow__controls') &&
               !node.classList?.contains('react-flow__minimap') &&
-              !node.classList?.contains('action-bar') && // Exclude action bar
-              !node.classList?.contains('tree-title-overlay') && // Exclude title overlay
-              !node.classList?.contains('search-panel') // Exclude search panel
+              !node.classList?.contains('action-bar') &&
+              !node.classList?.contains('tree-title-overlay') &&
+              !node.classList?.contains('search-panel')
             );
           },
           backgroundColor: '#f5f7fa',
-          pixelRatio: 2, // Slightly lower than download to avoid massive PDF size
-          style: {
-            width: '100%',
-            height: '100%',
-          }
+          pixelRatio: 2,
+          style: { width: '100%', height: '100%' }
         });
         await generateFamilyBook(familyMembers, treeImageBase64, user, serverUrl);
         setSuccessMessage('Family Book generated successfully!');
@@ -339,7 +359,6 @@ const Tree = () => {
     <div className="tree-page-container">
       <Navbar />
       
-      {/* Action Bar for Download/Share */}
       {familyMembers.length > 0 && (
         <ActionBar 
           onDownload={handleDownload} 
@@ -367,7 +386,9 @@ const Tree = () => {
                     familyMembers={familyMembers}
                     serverUrl={serverUrl}
                     onAddRelative={handleAddRelative}
-                    user={user} // Pass the user prop here
+                    onEdit={handleEditMember} // Pass edit handler
+                    onDelete={handleDeleteRequest} // Pass delete handler
+                    user={user}
                   />
                 </ReactFlowProvider>
               </div>
@@ -376,18 +397,29 @@ const Tree = () => {
         )}
       </div>
 
+      {/* Reused Modal for Adding and Editing */}
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)}>
         <AddMemberForm
           relationType={relationType}
           onCancel={() => setModalOpen(false)}
           relativeToId={relativeToId}
-          onMemberAdded={handleMemberAdded}
+          onMemberAdded={handleMemberSaved}
+          editingMember={editingMember} // Pass member to edit
         />
       </Modal>
 
       <ShareModal 
         isOpen={shareModalOpen} 
         onClose={() => setShareModalOpen(false)} 
+      />
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={confirmDelete}
+        title="Delete Member?"
+        message="Are you sure you want to delete this family member? This might affect relationships in your tree."
       />
     </div>
   );

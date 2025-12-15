@@ -251,6 +251,9 @@
 
 /* Printing Mode - Clean Export Styles */
 .printing-mode .node-add-btn,
+.printing-mode .node-actions-btn, /* Hide actions button */
+.printing-mode .node-add-menu,
+.printing-mode .node-actions-menu,
 .printing-mode .react-flow__handle,
 .printing-mode .react-flow__controls,
 .printing-mode .react-flow__minimap,

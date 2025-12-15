@@ -78,44 +78,69 @@
 }
 
 
-/* Add Button Styling */
+/* Add Button Styling (Top Right) */
 .node-add-btn {
   position: absolute;
-  top: -12px; /* Adjust position */
-  right: -12px; /* Adjust position */
+  top: -12px;
+  right: -12px;
   background: var(--primary-color);
   color: var(--white);
-  border: 2px solid var(--white); /* White border for contrast */
+  border: 2px solid var(--white);
   border-radius: 50%;
-  width: 32px; /* Larger button */
+  width: 32px;
   height: 32px;
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
   box-shadow: var(--shadow-md);
-  z-index: 200; /* Ensure it's always on top */
+  z-index: 200;
   transition: all 0.2s ease-in-out;
 }
 
 .node-add-btn:hover {
   background: var(--primary-dark);
   transform: scale(1.1);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
 }
 
-.node-add-btn svg {
+/* Actions Button Styling (Top Left) */
+.node-actions-btn {
+  position: absolute;
+  top: -12px;
+  left: -12px;
+  background: var(--white);
+  color: var(--text-secondary);
+  border: 1px solid var(--glass-border);
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  z-index: 200;
+  transition: all 0.2s ease-in-out;
+}
+
+.node-actions-btn:hover {
+  background: var(--bg-light);
+  color: var(--primary-color);
+  transform: scale(1.1);
+  box-shadow: var(--shadow-md);
+}
+
+.node-add-btn svg, .node-actions-btn svg {
   width: 18px;
   height: 18px;
 }
 
-/* Add Menu Styling (Glassmorphic) */
-.node-add-menu {
+/* Menus (Glassmorphic) */
+.node-add-menu, .node-actions-menu {
   position: absolute;
   top: 0;
-  right: -150px; /* Position to the right of the button */
-  width: 150px;
-  background: rgba(255, 255, 255, 0.95); /* More opaque glass */
+  width: 160px;
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
   border: 1px solid rgba(255, 255, 255, 0.7);
@@ -126,6 +151,16 @@
   flex-direction: column;
   overflow: hidden;
   animation: scaleIn 0.2s ease-out forwards;
+  transform-origin: top center;
+}
+
+.node-add-menu {
+  right: -160px;
+  transform-origin: top left;
+}
+
+.node-actions-menu {
+  left: -160px;
   transform-origin: top right;
 }
 
@@ -134,10 +169,10 @@
   to { opacity: 1; transform: scale(1); }
 }
 
-.node-add-menu button {
-  padding: 10px 15px; /* More padding */
+.node-add-menu button, .node-actions-menu button {
+  padding: 10px 15px;
   border: none;
-  background: transparent; /* Transparent background */
+  background: transparent;
   text-align: left;
   cursor: pointer;
   font-size: 0.9rem;
@@ -145,12 +180,26 @@
   transition: background 0.2s ease, color 0.2s ease;
   display: flex;
   align-items: center;
-  gap: 8px; /* Space for potential icons */
+  gap: 10px;
 }
 
 .node-add-menu button:hover {
-  background: var(--primary-light); /* Primary light on hover */
-  color: var(--white); /* White text on hover */
+  background: var(--primary-light);
+  color: var(--white);
+}
+
+.node-actions-menu button:hover {
+  background: var(--bg-light);
+  color: var(--primary-dark);
+}
+
+/* Special styling for delete button in actions menu */
+.node-actions-menu button.delete-btn {
+  color: var(--error);
+}
+
+.node-actions-menu button.delete-btn:hover {
+  background: rgba(239, 68, 68, 0.1);
 }
 
 /* React Flow Handles - visually hidden but functional */

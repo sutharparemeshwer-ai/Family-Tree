@@ -14,15 +14,15 @@ const UploadIcon = () => (
   </svg>
 );
 
-const AddMemberForm = ({ relationType, onCancel, relativeToId, onMemberAdded, customEndpoint }) => {
+const AddMemberForm = ({ relationType, onCancel, relativeToId, onMemberAdded, customEndpoint, editingMember }) => {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     nickname: '',
     description: '',
-    birthDate: null, // Initialize as null for DatePicker
+    birthDate: null,
     anniversaryDate: null,
-    deathDate: null // Added deathDate support if needed, based on typical requests
+    deathDate: null
   });
   const [profileImage, setProfileImage] = useState(null);
   const [preview, setPreview] = useState('');
@@ -30,8 +30,26 @@ const AddMemberForm = ({ relationType, onCancel, relativeToId, onMemberAdded, cu
   const [loading, setLoading] = useState(false);
 
   // Define min and max date objects for the year range
-  const minDate = new Date(1800, 0, 1); // January 1, 1800
-  const maxDate = new Date(2040, 11, 31); // December 31, 2040
+  const minDate = new Date(1800, 0, 1);
+  const maxDate = new Date(2040, 11, 31);
+
+  // Populate form for editing
+  React.useEffect(() => {
+    if (editingMember) {
+      setFormData({
+        firstName: editingMember.first_name || '',
+        lastName: editingMember.last_name || '',
+        nickname: editingMember.nickname || '',
+        description: editingMember.description || '',
+        birthDate: editingMember.birth_date ? new Date(editingMember.birth_date) : null,
+        anniversaryDate: editingMember.anniversary_date ? new Date(editingMember.anniversary_date) : null,
+        deathDate: editingMember.death_date ? new Date(editingMember.death_date) : null,
+      });
+      if (editingMember.profile_img_url) {
+        setPreview(`http://localhost:5000${editingMember.profile_img_url}`);
+      }
+    }
+  }, [editingMember]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -61,47 +79,49 @@ const AddMemberForm = ({ relationType, onCancel, relativeToId, onMemberAdded, cu
     data.append('nickname', formData.nickname);
     data.append('description', formData.description);
     
-    // Format dates to YYYY-MM-DD
-    if (formData.birthDate) {
-        data.append('birthDate', formData.birthDate.toISOString().split('T')[0]);
-    }
-    if (formData.anniversaryDate) {
-        data.append('anniversaryDate', formData.anniversaryDate.toISOString().split('T')[0]);
-    }
-    if (formData.deathDate) {
-        data.append('deathDate', formData.deathDate.toISOString().split('T')[0]);
-    }
+    if (formData.birthDate) data.append('birthDate', formData.birthDate.toISOString().split('T')[0]);
+    if (formData.anniversaryDate) data.append('anniversaryDate', formData.anniversaryDate.toISOString().split('T')[0]);
+    if (formData.deathDate) data.append('deathDate', formData.deathDate.toISOString().split('T')[0]);
     
     if (profileImage) {
       data.append('profileImage', profileImage);
     }
-    data.append('relationType', relationType); // Always append relationType
-    // Only append relativeToId if not adding self
-    if (relationType !== 'Self') {
-      data.append('relativeToId', relativeToId);
+
+    // Only append relation info if NOT editing
+    if (!editingMember) {
+        data.append('relationType', relationType);
+        if (relationType !== 'Self') {
+            data.append('relativeToId', relativeToId);
+        }
     }
 
     try {
       let res;
-      if (customEndpoint) {
-        // Use direct axios call for shared view
+      if (editingMember) {
+        // Update existing member
+        res = await api.put(`/members/${editingMember.id}`, data, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+        });
+      } else if (customEndpoint) {
+        // Shared view add
         res = await axios.post(customEndpoint, data, {
             headers: { 'Content-Type': 'multipart/form-data' }
         });
       } else {
-        // Use api utility for standard authenticated view
+        // Standard add
         res = await api.post('/members', data, {
             headers: { 'Content-Type': 'multipart/form-data' },
         });
       }
       
       if (onMemberAdded) {
-        onMemberAdded(res.data.message || 'Member added successfully!');
+        onMemberAdded(res.data.message || (editingMember ? 'Member updated!' : 'Member added!'));
       } else {
-        onCancel(); // Fallback to just closing modal
+        onCancel();
       }
     } catch (err) {
-      setError(err.response?.data?.message || err.response?.data?.error || 'An error occurred.');
+      console.error(err);
+      setError(err.response?.data?.message || 'An error occurred.');
     } finally {
       setLoading(false);
     }
@@ -109,7 +129,7 @@ const AddMemberForm = ({ relationType, onCancel, relativeToId, onMemberAdded, cu
 
   return (
     <form className="add-member-form" onSubmit={handleSubmit}>
-      <h3 className="form-heading">Add {relationType}</h3>
+      <h3 className="form-heading">{editingMember ? 'Edit Member' : `Add ${relationType}`}</h3>
       {error && <p className="form-error">{error}</p>}
       
       <div className="form-section-split">

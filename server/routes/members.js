@@ -37,4 +37,17 @@ router.get('/', authMiddleware, membersController.getMembers);
 // Fetch upcoming birthdays and anniversaries
 router.get('/events', authMiddleware, membersController.getUpcomingEvents);
 
+// PUT /api/members/:id
+// Update a family member
+router.put(
+  '/:id',
+  authMiddleware,
+  upload.single('profileImage'),
+  membersController.updateMember
+);
+
+// DELETE /api/members/:id
+// Delete a family member
+router.delete('/:id', authMiddleware, membersController.deleteMember);
+
 module.exports = router;
