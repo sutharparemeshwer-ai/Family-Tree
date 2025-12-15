@@ -1,0 +1,139 @@
+.profile-selector {
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border-radius: 20px; /* More rounded */
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  width: 90vw;
+  max-width: 600px;
+  height: 80vh; /* Fixed height for consistency */
+  max-height: 600px; /* Don't get too tall on large screens */
+  overflow: hidden; /* Hide scrollbars on main container */
+  position: relative;
+}
+
+.selector-header {
+  padding: 30px 30px 10px;
+  text-align: center;
+  flex-shrink: 0; /* Header doesn't shrink */
+}
+
+.selector-title {
+  font-size: 2rem;
+  color: #1a1a1a;
+  margin: 0 0 10px;
+  font-weight: 800;
+  font-family: 'Poppins', sans-serif;
+}
+
+.selector-subtitle {
+  font-size: 1rem;
+  color: #666;
+  margin: 0;
+}
+
+.profile-search-container {
+  padding: 0 30px 20px;
+  flex-shrink: 0;
+}
+
+.profile-search-input {
+  width: 100%;
+  padding: 12px 20px;
+  border-radius: 30px;
+  border: 2px solid #eee;
+  font-size: 1rem;
+  background: #f9fafb;
+  transition: all 0.2s;
+  box-sizing: border-box;
+}
+
+.profile-search-input:focus {
+  border-color: #4CAF50;
+  background: white;
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.1);
+}
+
+.profile-scroll-container {
+  flex: 1; /* Takes remaining space */
+  overflow-y: auto; /* Scrollable area */
+  padding: 10px 30px;
+  /* Custom Scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: #ddd transparent;
+}
+
+.profile-scroll-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.profile-scroll-container::-webkit-scrollbar-thumb {
+  background-color: #ddd;
+  border-radius: 10px;
+}
+
+.profile-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 20px;
+  justify-content: center;
+  padding-bottom: 20px;
+}
+
+.profile-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.2s;
+  padding: 10px;
+  border-radius: 12px;
+}
+
+.profile-item:hover {
+  transform: translateY(-5px);
+  background-color: #f5f9f5;
+}
+
+.profile-avatar {
+  width: 90px;
+  height: 90px;
+  border-radius: 20px; /* Squircle */
+  object-fit: cover;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  margin-bottom: 12px;
+  border: 3px solid transparent;
+  transition: border-color 0.2s;
+}
+
+.profile-item:hover .profile-avatar {
+  border-color: #4CAF50;
+}
+
+.profile-name {
+  font-weight: 600;
+  color: #333;
+  font-size: 0.95rem;
+  line-height: 1.3;
+}
+
+.selector-hint {
+  text-align: center;
+  padding: 15px;
+  background: #f9fafb;
+  border-top: 1px solid #eee;
+  color: #888;
+  font-size: 0.85rem;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.no-members-message {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: #666;
+  font-style: italic;
+  padding: 20px;
+}

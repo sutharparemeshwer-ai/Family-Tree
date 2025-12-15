@@ -31,7 +31,7 @@ const TrashIcon = () => (
   </svg>
 );
 
-const MemoryCard = ({ memory, onDelete }) => {
+const MemoryCard = ({ memory, onDelete, onViewMemory }) => {
   const serverUrl = 'http://localhost:5000';
   const firstFile = memory.files && memory.files[0];
   const videoRef = useRef(null); // Create a ref for the video element
@@ -62,24 +62,37 @@ const MemoryCard = ({ memory, onDelete }) => {
     }
   };
 
+  const isImage = firstFile && firstFile.file_type && firstFile.file_type.startsWith('image');
+  const isVideo = firstFile && firstFile.file_type && firstFile.file_type.startsWith('video');
+
   return (
-    <div className="memory-card">
+    <div className="memory-card" onClick={() => onViewMemory(memory)}>
       <div className="memory-card-media-wrapper">
         {firstFile ? (
           <div
             className="memory-card-media"
-            onMouseEnter={firstFile.type === 'video' ? handleVideoMouseEnter : undefined}
-            onMouseLeave={firstFile.type === 'video' ? handleVideoMouseLeave : undefined}
+            onMouseEnter={isVideo ? handleVideoMouseEnter : undefined}
+            onMouseLeave={isVideo ? handleVideoMouseLeave : undefined}
           >
-            {firstFile.type === 'image' ? (
-              <img src={`${serverUrl}${firstFile.url}`} alt={memory.title} />
-            ) : (
-              <video ref={videoRef} muted loop playsInline> {/* Add ref, muted, loop, playsInline */}
-                <source src={`${serverUrl}${firstFile.url}`} type="video/mp4" />
+            {isImage ? (
+              <img src={`${serverUrl}${firstFile.file_url}`} alt={memory.title} />
+            ) : isVideo ? (
+              <video 
+                ref={videoRef} 
+                muted 
+                loop 
+                playsInline 
+                preload="metadata"
+                src={`${serverUrl}${firstFile.file_url}`}
+              >
                 Your browser does not support the video tag.
               </video>
+            ) : (
+              <div className="unsupported-media">
+                <p>Unsupported media type</p>
+              </div>
             )}
-            {firstFile.type === 'video' && <div className="video-overlay"><PlayIcon /></div>}
+            {isVideo && <div className="video-overlay"><PlayIcon /></div>}
             <div className="media-overlay">
               <h4 className="overlay-title">{memory.title}</h4>
             </div>

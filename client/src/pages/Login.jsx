@@ -17,7 +17,7 @@ const PasswordIcon = () => (
   </svg>
 );
 
-const Login = () => {
+const Login = ({ setUser }) => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -46,6 +46,7 @@ const Login = () => {
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('user', JSON.stringify(res.data.user));
       
+      setUser(res.data.user); // Update global user state
       navigate('/main'); // Redirect to the main UI
     } catch (err) {
       setError(err.response?.data?.message || 'An error occurred during login.');

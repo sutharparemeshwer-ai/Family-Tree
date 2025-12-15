@@ -1,6 +1,13 @@
 .main-page-container {
-  background-color: #f8f9fa; /* A light, neutral background for the whole page */
+  background-color: #ffffff;
+  background-image: 
+    radial-gradient(ellipse at 50% 0%, rgba(76, 175, 80, 0.15) 0%, transparent 60%),
+    radial-gradient(rgba(76, 175, 80, 0.5) 1px, transparent 1px);
+  background-size: 100% 100%, 15px 15px;
   overflow-x: hidden; /* Prevents horizontal scroll */
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
 /* This is now a full-screen container for the hero content */
@@ -12,16 +19,10 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  min-height: 100vh; /* Full viewport height */
+  flex: 1; /* Allow it to grow/shrink properly */
   width: 100%;
-  padding: 0 1rem; /* Horizontal padding */
-
-  /* White background with green dots and top shadow */
-  background-color: #ffffff;
-  background-image: 
-    radial-gradient(ellipse at 50% 0%, rgba(76, 175, 80, 0.15) 0%, transparent 60%),
-    radial-gradient(rgba(76, 175, 80, 0.5) 1px, transparent 1px);
-  background-size: 100% 100%, 15px 15px;
+  padding: 100px 1rem 0 1rem; /* Added padding-top to clear the fixed navbar */
+  /* Background moved to container */
 }
 
 .hero-content-wrapper {
@@ -142,3 +143,16 @@
   background-color: rgba(144, 238, 144, 0.5); /* Slightly less transparent on hover */
   box-shadow: 0 6px 20px rgba(144, 238, 144, 0.4); /* Adjust shadow color */
 }
+
+.main-footer {
+  width: 100%;
+  padding: 15px 0 10px 0; /* Increased top padding */
+  background-color: #ffffff; /* White background like navbar */
+  color: #555;
+  text-align: center;
+  font-size: 0.85rem; /* Slightly smaller font */
+  margin-top: 40px; /* Gap above footer */
+  border-top: 1px solid #eee; /* Lighter border */
+  box-shadow: 0 -2px 5px rgba(0,0,0,0.03); /* Subtle shadow similar to navbar */
+}
+

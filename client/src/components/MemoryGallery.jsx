@@ -1,12 +1,18 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import api from '../utils/api';
 import MemoryCard from './MemoryCard';
+import MemoryViewerModal from './MemoryViewerModal'; // NEW
 import './MemoryGallery.css';
 
 const MemoryGallery = ({ memberId, memberName, onAddMemory }) => {
   const [memories, setMemories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const serverUrl = 'http://localhost:5000'; // Define serverUrl here
+
+  // State for Memory Viewer Modal
+  const [isViewerModalOpen, setIsViewerModalOpen] = useState(false);
+  const [selectedMemoryForViewer, setSelectedMemoryForViewer] = useState(null);
 
   const fetchMemories = useCallback(async () => {
     if (!memberId) {
@@ -40,6 +46,11 @@ const MemoryGallery = ({ memberId, memberName, onAddMemory }) => {
     }
   };
 
+  const handleViewMemory = (memory) => {
+    setSelectedMemoryForViewer(memory);
+    setIsViewerModalOpen(true);
+  };
+
   return (
     <div className="memory-gallery-container">
       <header className="gallery-header">
@@ -53,7 +64,12 @@ const MemoryGallery = ({ memberId, memberName, onAddMemory }) => {
           <>
             {memories.length > 0 ? (
               memories.map(memory => (
-                <MemoryCard key={memory.id} memory={memory} onDelete={handleDeleteMemory} />
+                <MemoryCard 
+                  key={memory.id} 
+                  memory={memory} 
+                  onDelete={handleDeleteMemory} 
+                  onViewMemory={handleViewMemory} // Pass the handler
+                />
               ))
             ) : (
               <div className="memory-card-placeholder">
@@ -63,6 +79,13 @@ const MemoryGallery = ({ memberId, memberName, onAddMemory }) => {
           </>
         )}
       </div>
+
+      <MemoryViewerModal
+        isOpen={isViewerModalOpen}
+        onClose={() => setIsViewerModalOpen(false)}
+        memory={selectedMemoryForViewer}
+        serverUrl={serverUrl}
+      />
     </div>
   );
 };

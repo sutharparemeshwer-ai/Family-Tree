@@ -93,7 +93,7 @@
   color: white;
   font-size: 3rem;
   cursor: pointer;
-  opacity: 0;
+  opacity: 1; /* Visible by default */
   transition: opacity 0.3s ease;
 }
 

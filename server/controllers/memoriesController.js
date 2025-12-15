@@ -77,7 +77,7 @@ const getMemoriesByMember = async (req, res) => {
         m.created_at,
         COALESCE(
           (
-            SELECT json_agg(json_build_object('url', mf.file_url, 'type', mf.file_type))
+            SELECT json_agg(json_build_object('file_url', mf.file_url, 'file_type', mf.file_type))
             FROM memory_files mf
             WHERE mf.memory_id = m.id
           ),

@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import EventsWidget from '../components/EventsWidget';
+import ProfileSelector from '../components/ProfileSelector';
+import NewsFeed from '../components/NewsFeed'; // NEW
 import './Main.css';
 
 const MemoriesIcon = () => (
@@ -13,8 +15,27 @@ const MemoriesIcon = () => (
 );
 
 
-const Main = () => {
+const Main = ({ user }) => { // Accept user prop
   const navigate = useNavigate();
+  const [isProfileSelectorOpen, setIsProfileSelectorOpen] = useState(false);
+  const [activeProfile, setActiveProfile] = useState(null);
+
+  // Check for active profile on load
+  useEffect(() => {
+    const storedProfile = localStorage.getItem('activeProfile');
+    if (storedProfile) {
+      setActiveProfile(JSON.parse(storedProfile));
+    } else {
+      setIsProfileSelectorOpen(true); // Open selector if no profile set
+    }
+  }, []);
+
+  const handleProfileSelected = () => {
+    // Re-read active profile after selection
+    setActiveProfile(JSON.parse(localStorage.getItem('activeProfile')));
+    setIsProfileSelectorOpen(false);
+  };
+
 
   const handleNavigateToTree = () => {
     navigate('/tree');
@@ -46,10 +67,22 @@ const Main = () => {
           </div>
           
           <EventsWidget />
+          
+          {activeProfile && <NewsFeed />}
         </div>
       </section>
-    </div>
-  );
-};
 
-export default Main;
+            <ProfileSelector
+              isOpen={isProfileSelectorOpen}
+              onClose={() => setIsProfileSelectorOpen(false)}
+              onProfileSelected={handleProfileSelected}
+            />
+      
+            <footer className="main-footer">
+              <p>&copy; {new Date().getFullYear()} Family Tree App. All rights reserved.</p>
+            </footer>
+          </div>
+        );
+      };
+      
+      export default Main;
