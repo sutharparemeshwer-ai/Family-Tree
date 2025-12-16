@@ -5,6 +5,7 @@ import Navbar from '../components/Navbar';
 import EventsWidget from '../components/EventsWidget';
 import ProfileSelector from '../components/ProfileSelector';
 import NewsFeed from '../components/NewsFeed';
+import LoadingScreen from '../components/LoadingScreen'; // Import the loader
 import './Main.css';
 
 // Reusing existing icons or replacing with better ones if necessary
@@ -30,6 +31,15 @@ const Main = ({ user }) => {
   const navigate = useNavigate();
   const [isProfileSelectorOpen, setIsProfileSelectorOpen] = useState(false);
   const [activeProfile, setActiveProfile] = useState(null);
+  const [showSplash, setShowSplash] = useState(true); // State for splash screen
+
+  // Handle Loading Screen
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowSplash(false);
+    }, 2500); // Show for 2.5 seconds
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     const checkProfileAndMembers = async () => {
@@ -63,6 +73,10 @@ const Main = ({ user }) => {
   const handleNavigateToMemories = () => {
     navigate('/memories');
   };
+
+  if (showSplash) {
+    return <LoadingScreen />;
+  }
 
   return (
     <div className="main-page-container">
