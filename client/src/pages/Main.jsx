@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import api from '../utils/api';
 import Navbar from '../components/Navbar';
 import EventsWidget from '../components/EventsWidget';
 import ProfileSelector from '../components/ProfileSelector';
@@ -31,12 +32,23 @@ const Main = ({ user }) => {
   const [activeProfile, setActiveProfile] = useState(null);
 
   useEffect(() => {
-    const storedProfile = localStorage.getItem('activeProfile');
-    if (storedProfile) {
-      setActiveProfile(JSON.parse(storedProfile));
-    } else {
-      setIsProfileSelectorOpen(true);
-    }
+    const checkProfileAndMembers = async () => {
+      const storedProfile = localStorage.getItem('activeProfile');
+      if (storedProfile) {
+        setActiveProfile(JSON.parse(storedProfile));
+      } else {
+        try {
+          const response = await api.get('/members');
+          if (response.data && response.data.length > 0) {
+            setIsProfileSelectorOpen(true);
+          }
+        } catch (error) {
+          console.error('Error checking members:', error);
+        }
+      }
+    };
+
+    checkProfileAndMembers();
   }, []);
 
   const handleProfileSelected = () => {

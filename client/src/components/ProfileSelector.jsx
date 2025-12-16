@@ -44,7 +44,7 @@ const ProfileSelector = ({ isOpen, onClose, onProfileSelected }) => {
   );
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} disableClose={true}>
+    <Modal isOpen={isOpen} onClose={onClose}>
       <div className="profile-selector">
         <div className="selector-header">
           <h2 className="selector-title">Who are you?</h2>
