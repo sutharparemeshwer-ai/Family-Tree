@@ -37,6 +37,15 @@ app.get('/', (req, res) => {
   res.send('Family Tree Server is running!');
 });
 
+// Global Error Handler
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ 
+    message: 'An internal server error occurred', 
+    error: err.message 
+  });
+});
+
 app.listen(port, () => {
   console.log(`Server is running on port: ${port}`);
 });
