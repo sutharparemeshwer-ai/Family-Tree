@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import api from '../utils/api';
+import api, { SERVER_URL } from '../utils/api';
 import './MembersSidebar.css';
 
 const MembersSidebar = ({ onMemberSelect, selectedMemberId, onMembersLoad }) => {
@@ -34,7 +34,7 @@ const MembersSidebar = ({ onMemberSelect, selectedMemberId, onMembersLoad }) => 
     setIsMobileOpen(false); // Close sidebar on mobile after selection
   };
 
-  const serverUrl = 'http://localhost:5000';
+  const serverUrl = SERVER_URL;
 
   return (
     <>

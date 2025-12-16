@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import api from '../utils/api';
+import api, { SERVER_URL } from '../utils/api';
 import Modal from './Modal';
 import './ProfileSelector.css';
 
@@ -78,7 +78,7 @@ const ProfileSelector = ({ isOpen, onClose, onProfileSelected }) => {
                 onClick={() => handleSelectProfile(member)}
               >
                 <img 
-                  src={member.profile_img_url ? `http://localhost:5000${member.profile_img_url}` : 'https://via.placeholder.com/100'} 
+                  src={member.profile_img_url ? `${SERVER_URL}${member.profile_img_url}` : 'https://via.placeholder.com/100'} 
                   alt={member.first_name} 
                   className="profile-avatar" 
                 />

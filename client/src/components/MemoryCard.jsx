@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import { SERVER_URL } from '../utils/api';
 import './MemoryCard.css';
 
 const ImageIcon = () => (
@@ -32,7 +33,7 @@ const TrashIcon = () => (
 );
 
 const MemoryCard = ({ memory, onDelete, onViewMemory }) => {
-  const serverUrl = 'http://localhost:5000';
+  const serverUrl = SERVER_URL;
   const firstFile = memory.files && memory.files[0];
   const videoRef = useRef(null);
 

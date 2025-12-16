@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { SERVER_URL } from '../utils/api';
 import './Navbar.css';
 
 const Navbar = () => {
@@ -20,7 +21,7 @@ const Navbar = () => {
     navigate('/login');
   };
 
-  const serverUrl = 'http://localhost:5000';
+  const serverUrl = SERVER_URL;
 
   return (
     <nav className="navbar">

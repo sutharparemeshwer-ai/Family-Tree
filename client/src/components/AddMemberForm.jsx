@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import api from '../utils/api'; // Import the api utility
+import api, { SERVER_URL } from '../utils/api'; // Import the api utility
 import axios from 'axios';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
@@ -46,7 +46,7 @@ const AddMemberForm = ({ relationType, onCancel, relativeToId, onMemberAdded, cu
         deathDate: editingMember.death_date ? new Date(editingMember.death_date) : null,
       });
       if (editingMember.profile_img_url) {
-        setPreview(`http://localhost:5000${editingMember.profile_img_url}`);
+        setPreview(`${SERVER_URL}${editingMember.profile_img_url}`);
       }
     }
   }, [editingMember]);

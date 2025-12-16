@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import api from '../utils/api';
+import api, { SERVER_URL } from '../utils/api';
 import MemoryCard from './MemoryCard';
 import MemoryViewerModal from './MemoryViewerModal';
 import ConfirmationModal from './ConfirmationModal'; // Import new component
@@ -9,7 +9,7 @@ const MemoryGallery = ({ memberId, memberName, onAddMemory }) => {
   const [memories, setMemories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const serverUrl = 'http://localhost:5000';
+  const serverUrl = SERVER_URL;
 
   // State for Memory Viewer Modal
   const [isViewerModalOpen, setIsViewerModalOpen] = useState(false);

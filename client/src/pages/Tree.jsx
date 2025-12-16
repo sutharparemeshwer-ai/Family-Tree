@@ -21,7 +21,7 @@ import ActionBar from '../components/ActionBar';
 import ShareModal from '../components/ShareModal';
 import FamilyNode from '../components/FamilyNode';
 import ConfirmationModal from '../components/ConfirmationModal'; // Import ConfirmationModal
-import api from '../utils/api';
+import api, { SERVER_URL } from '../utils/api';
 import { getLayoutedElements } from '../utils/treeLayout';
 import { generateFamilyBook } from '../utils/bookGenerator';
 import './Tree.css';
@@ -210,8 +210,7 @@ const Tree = () => {
   const [membersError, setMembersError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
-  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-  const serverUrl = API_URL.replace(/\/api$/, '');
+  const serverUrl = SERVER_URL;
 
   const fetchFamilyMembers = useCallback(async () => {
     setLoadingMembers(true);

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
-import api from '../utils/api';
+import api, { SERVER_URL } from '../utils/api';
 import './Settings.css';
 
 const CameraIcon = () => (
@@ -25,7 +25,7 @@ const Settings = () => {
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const serverUrl = 'http://localhost:5000';
+  const serverUrl = SERVER_URL;
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem('user'));
