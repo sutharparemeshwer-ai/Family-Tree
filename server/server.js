@@ -15,6 +15,7 @@ const port = process.env.PORT || 5000;
 // Ensure uploads directory exists
 const uploadsDir = path.join(__dirname, 'uploads');
 console.log('Server starting...');
+console.log('Current working directory (cwd):', process.cwd());
 console.log('__dirname:', __dirname);
 console.log('Configured uploads directory:', uploadsDir);
 
