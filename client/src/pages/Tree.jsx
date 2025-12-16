@@ -162,7 +162,7 @@ const TreeVisualizer = ({ familyMembers, serverUrl, onAddRelative, onEdit, onDel
         {user?.first_name ? `${user.first_name}'s` : 'My'} Family Lineage
       </Panel>
 
-      <Panel position="top-left" style={{ top: 80 }} className="search-panel">
+      <Panel position="top-left" style={{ top: 110 }} className="search-panel">
         <div className="search-container">
           <input 
             type="text" 
