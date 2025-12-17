@@ -18,6 +18,8 @@ import FamilyNode from '../components/FamilyNode';
 import ConfirmationModal from '../components/ConfirmationModal';
 import { getLayoutedElements } from '../utils/treeLayout';
 import './Tree.css'; 
+import './AuthShared.css'; // Import Auth styles
+import '../components/Navbar.css'; // Import Navbar styles
 
 const nodeTypes = {
   familyMember: FamilyNode,
@@ -154,6 +156,17 @@ const SharedTree = () => {
     }
   };
 
+  // Auto-hide success message
+  useEffect(() => {
+    if (successMessage) {
+      const timer = setTimeout(() => {
+        setSuccessMessage('');
+      }, 200); // 0.2 seconds
+      return () => clearTimeout(timer);
+    }
+  }, [successMessage]);
+
+
   const handleGuestLoginSubmit = (e) => {
     e.preventDefault();
     if (!guestInfo.name) return;
@@ -224,46 +237,42 @@ const SharedTree = () => {
   // Render: Guest Login Gate
   if (showGuestLogin && !isVerified) {
     return (
-      <div className="guest-login-container" style={{ 
-        display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', 
-        background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)' 
-      }}>
-        <div style={{ 
-          background: 'white', padding: '40px', borderRadius: '20px', 
-          boxShadow: '0 10px 25px rgba(0,0,0,0.1)', maxWidth: '400px', width: '90%' 
-        }}>
-          <h2 style={{ marginBottom: '10px', color: '#333' }}>Welcome!</h2>
-          <p style={{ marginBottom: '20px', color: '#666' }}>
-            You have been invited to edit the <strong>{treeLabel}</strong> family tree by <strong>{ownerName}</strong>.
-          </p>
-          <p style={{ marginBottom: '30px', fontSize: '0.9rem', color: '#888' }}>
-            Please enter your name so your changes can be tracked.
-          </p>
+      <div className="auth-page">
+        <div className="auth-card">
+          <div className="auth-header">
+            <h2 className="auth-title">Welcome</h2>
+            <p className="auth-subtitle">
+              Invited by <strong>{ownerName}</strong>
+            </p>
+            {treeLabel && <p className="auth-subtitle" style={{marginTop: '0.5rem', fontSize: '0.9rem', color: '#666'}}>"{treeLabel}"</p>}
+          </div>
           
-          <form onSubmit={handleGuestLoginSubmit}>
-            <div style={{ marginBottom: '15px' }}>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500', color: '#555' }}>Your Name</label>
-              <input 
-                type="text" required value={guestInfo.name}
-                onChange={(e) => setGuestInfo({...guestInfo, name: e.target.value})}
-                style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '1rem' }}
-                placeholder="e.g. Uncle Bob"
-              />
+          <form className="auth-form" onSubmit={handleGuestLoginSubmit}>
+            <div className="input-group">
+              <div className="input-field active">
+                <input 
+                  type="text" 
+                  required 
+                  value={guestInfo.name}
+                  onChange={(e) => setGuestInfo({...guestInfo, name: e.target.value})}
+                  id="guest-name"
+                />
+                <label htmlFor="guest-name">Your Name</label>
+              </div>
+
+              <div className="input-field active">
+                <input 
+                  type="email" 
+                  value={guestInfo.email}
+                  onChange={(e) => setGuestInfo({...guestInfo, email: e.target.value})}
+                  id="guest-email"
+                />
+                <label htmlFor="guest-email">Your Email (Optional)</label>
+              </div>
             </div>
-            <div style={{ marginBottom: '25px' }}>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500', color: '#555' }}>Your Email (Optional)</label>
-              <input 
-                type="email" value={guestInfo.email}
-                onChange={(e) => setGuestInfo({...guestInfo, email: e.target.value})}
-                style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '1rem' }}
-                placeholder="bob@example.com"
-              />
-            </div>
-            <button type="submit" style={{ 
-              width: '100%', padding: '12px', background: '#4CAF50', color: 'white', 
-              border: 'none', borderRadius: '10px', fontWeight: '600', fontSize: '1rem', cursor: 'pointer' 
-            }}>
-              Access Tree
+
+            <button type="submit" className="auth-submit-btn">
+              Access Family Tree
             </button>
           </form>
         </div>
@@ -274,19 +283,24 @@ const SharedTree = () => {
   // Render: Tree View
   return (
     <div className="tree-page-container">
-      <nav className="navbar" style={{ padding: '0 2rem' }}>
-        <div className="navbar-logo">
-          <Link to="/">🌳 Family Tree {treeLabel && `- ${treeLabel}`}</Link>
+      <nav className="navbar">
+        <div className="navbar-brand">
+          <Link to="/" className="navbar-brand-link">FamilyTree</Link>
         </div>
-        <div className="navbar-links">
-           <span style={{ marginRight: '20px', fontSize: '0.9rem', color: '#555' }}>
-             {permission === 'edit' ? `Editing as: ${guestInfo.name}` : 'View Only Mode'}
-           </span>
-           <Link to="/signup" className="nav-link">Create Your Own</Link>
+        <div className="navbar-user" style={{ cursor: 'default' }}>
+           <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#e0f2f1', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#00695c', fontWeight: 'bold' }}>
+             {guestInfo.name ? guestInfo.name.charAt(0).toUpperCase() : 'G'}
+           </div>
+           <div className="user-details">
+             <span className="user-name">{guestInfo.name || 'Guest'}</span>
+             <span className="user-email" style={{ fontSize: '0.75rem', color: '#888' }}>
+               {permission === 'edit' ? 'Editor Access' : 'View Only'}
+             </span>
+           </div>
         </div>
       </nav>
 
-      <div className="tree-content" style={{ height: 'calc(100vh - 60px)', width: '100%' }}>
+      <div className="tree-content" style={{ height: 'calc(100vh - 80px)', width: '100%' }}>
         {loading && <div className="loading-overlay">Loading shared tree...</div>}
         {successMessage && <div className="success-toast">{successMessage}</div>}
 
@@ -335,3 +349,4 @@ const SharedTree = () => {
 };
 
 export default SharedTree;
+
